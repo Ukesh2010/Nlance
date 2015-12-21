@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.assignment.elance.models.Bidder" table="bidder">
+        <id name="bidder_id" column="bidder_id">
+            <generator class="native"/>
+        </id>
+        <property name="email" column="email"/>
+        <property name="username" column="username"/>
+        <property name="password" column="password"/>
+        <!--        <set name="jobs" table="job" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="bidder_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Job"/>
+        </set>
+        <set name="bids" table="bid" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="bidder_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Bid" />
+        </set>-->
+    </class>
+</hibernate-mapping>

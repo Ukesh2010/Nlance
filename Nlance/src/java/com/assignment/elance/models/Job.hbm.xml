@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.assignment.elance.models.Job" table="job">
+        <id column="job_id" name="job_id">
+            <generator class="native"/>
+        </id>
+        <property column="job_title" name="job_title"/>
+        <property column="job_description" name="job_description"/>
+        <property column="job_cost" name="job_cost"/>
+        <property column="time_period" name="time_period"/>
+        <property column="job_posted_date" name="job_posted_date"/>
+        <property column="job_status" name="job_status"/>
+        <many-to-one class="com.assignment.elance.models.Employer" name="employer">
+            <column name="employer_id"/>
+        </many-to-one>
+        <many-to-one class="com.assignment.elance.models.Bidder" name="bidder">
+            <column name="bidder_id"/>
+        </many-to-one>
+        <set fetch="select" inverse="true" lazy="true" name="bids" table="bid">
+            <key>
+                <column name="job_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Bid"/>
+        </set>
+        <!--        <set fetch="select" inverse="true" lazy="true" name="job_skills" table="job_skill">
+            <key>
+                <column name="job_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Job_Skill"/>
+        </set>-->
+        
+        <set name="skills" table="job_skill" inverse="false" lazy="true" fetch="select" cascade="all"  >
+            <key>
+                <column name="job_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="com.assignment.elance.models.Skill">
+                <column name="skill_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <many-to-one name="category" class="com.assignment.elance.models.Category">
+            <column name="category_id" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.assignment.elance.models.Job_Skill" table="job_skill">
+        <many-to-one class="com.assignment.elance.models.Skill" name="skill">
+            <column name="skill_id"/>
+        </many-to-one>
+        <many-to-one class="com.assignment.elance.models.Job" name="job">
+            <column name="job_id"/>
+        </many-to-one>
+    </class>
+</hibernate-mapping>

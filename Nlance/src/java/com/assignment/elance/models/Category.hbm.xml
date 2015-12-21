@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.assignment.elance.models.Category" table="category">
+        <id name="category_id" column="category_id">
+            <generator class="native"/>
+        </id>
+        <property  name="category_name" column="category_name"/>
+        <property  name="category_description" column="category_description"/>
+        <set fetch="select" inverse="true" lazy="true" name="jobs" table="job">
+            <key>
+                <column name="category_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Job"/>
+        </set>
+       
+    </class>
+</hibernate-mapping>

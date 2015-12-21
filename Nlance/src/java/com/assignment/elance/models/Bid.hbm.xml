@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.assignment.elance.models.Bid" table="bid">
+        <id name="bid_id" column="bid_id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="bidder" class="com.assignment.elance.models.Bidder">
+            <column name="bidder_id"/>
+        </many-to-one>
+        <many-to-one name="job" class="com.assignment.elance.models.Job">
+            <column name="job_id"/>
+        </many-to-one>
+        <many-to-one name="employer" class="com.assignment.elance.models.Employer">
+            <column name="employer_id" />
+        </many-to-one>
+        <property name="status" column="status"/>
+    </class>
+</hibernate-mapping>

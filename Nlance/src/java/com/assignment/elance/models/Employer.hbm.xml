@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.assignment.elance.models.Employer" table="employer">
+        <id column="employer_id" name="employer_id">
+            <generator class="native"></generator>
+        </id>
+        <property column="email" name="email"/>
+        <property column="username" name="username"/>
+        <property column="password" name="password"/>
+        <!--        <set  name="jobs" table="job" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="employer_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Job"/>
+        </set>-->
+    </class>
+</hibernate-mapping>
