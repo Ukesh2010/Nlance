@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.assignment.elance.models.Milestone" table="milestone">
+        <id name="milestone_id" column="milestone_id">
+            <generator class="native" />
+        </id>
+        <property name="milestone_description" column="milestone_description"  /> 
+        <property name="milestone_status" column="milestone_status"  /> 
+        <property name="milestone_amount" column="milestone_amount"  /> 
+        <property name="send_dir" type="boolean" column="send_dir"  />
+        <many-to-one name="job" class="com.assignment.elance.models.Job" lazy="false">
+            <column name="job_id"/>
+        </many-to-one> 
+    </class>
+</hibernate-mapping>

@@ -26,6 +26,25 @@ public class Job {
     private Set<Bid> bids;
     private Set<Skill> skills;
     private Category category;
+    private Set<Files> files;
+    private Set<Message> messages;
+    private Set<Milestone> milestones;
+
+    public Set<Milestone> getMilestones() {
+        return milestones;
+    }
+
+    public void setMilestones(Set<Milestone> milestones) {
+        this.milestones = milestones;
+    }
+
+    public Set<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Set<Message> messages) {
+        this.messages = messages;
+    }
 
     public Set<Skill> getSkills() {
         return skills;
@@ -121,6 +140,14 @@ public class Job {
 
     public void setBids(Set<Bid> bids) {
         this.bids = bids;
+    }
+
+    public Set<Files> getFiles() {
+        return files;
+    }
+
+    public void setFiles(Set<Files> files) {
+        this.files = files;
     }
 
 }

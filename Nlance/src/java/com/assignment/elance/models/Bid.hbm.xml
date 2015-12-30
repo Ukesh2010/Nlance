@@ -5,15 +5,17 @@
         <id name="bid_id" column="bid_id">
             <generator class="native"/>
         </id>
-        <many-to-one name="bidder" class="com.assignment.elance.models.Bidder">
+        <many-to-one name="bidder" lazy="false" class="com.assignment.elance.models.Bidder">
             <column name="bidder_id"/>
         </many-to-one>
-        <many-to-one name="job" class="com.assignment.elance.models.Job">
+        <many-to-one name="job" lazy="false"  class="com.assignment.elance.models.Job">
             <column name="job_id"/>
         </many-to-one>
         <many-to-one name="employer" class="com.assignment.elance.models.Employer">
             <column name="employer_id" />
         </many-to-one>
         <property name="status" column="status"/>
+        <property name="time_of_completion" column="time_of_completion" type="long"/>
+        <property name="bidded_price" column="bidded_price" type="float"/>
     </class>
-</hibernate-mapping>
+</hibernate-mapping> 

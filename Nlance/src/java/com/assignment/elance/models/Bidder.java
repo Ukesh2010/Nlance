@@ -19,6 +19,7 @@ public class Bidder {
     private String password;
     private Set<Job> jobs;
     private Set<Bid> bids;
+    private Set<Skill> skills;
 
     public Set<Bid> getBids() {
         return bids;
@@ -27,8 +28,6 @@ public class Bidder {
     public void setBids(Set<Bid> bids) {
         this.bids = bids;
     }
-    
-    
 
     public Set<Job> getJobs() {
         return jobs;
@@ -69,5 +68,14 @@ public class Bidder {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Set<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Set<Skill> skills) {
+        this.skills = skills;
+    }
+    
 
 }

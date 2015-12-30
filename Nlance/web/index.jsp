@@ -1,18 +1,15 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:useBean id="bidder" class="com.assignment.elance.models.Bidder" scope="session"/>
 <jsp:useBean id="employer" class="com.assignment.elance.models.Employer" scope="session"/>
 <%
-    if (!(bidder.getBidder_id() <= 0)) {
+    if ((bidder.getBidder_id() > 0)) {
         response.sendRedirect("bidderHome.jsp");
-    } else if (!(employer.getEmployer_id() <= 0)) {
+    } else if ((employer.getEmployer_id() > 0)) {
         response.sendRedirect("employerHome.jsp");
     }%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
-
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -57,7 +54,7 @@
                             <a href="#page-top"></a>
                         </li>
                         <li><a href="employerSignup.jsp">Hire</a></li> 
-                        <li><a href="bidderSignup.jsp">Work</a></li>
+                        <li><a href="bidderSignin.jsp">Work</a></li>
 
                         <li class="page-scroll">
                             <a href="#portfolio">Portfolio</a>

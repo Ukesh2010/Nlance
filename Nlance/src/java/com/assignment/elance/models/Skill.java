@@ -16,6 +16,7 @@ public class Skill {
     private int skill_id;
     private String skill_name;
     private Set<Job> jobs;
+    private Set<Bidder> bidders;
 
     public int getSkill_id() {
         return skill_id;
@@ -39,6 +40,14 @@ public class Skill {
 
     public void setJobs(Set<Job> jobs) {
         this.jobs = jobs;
+    }
+
+    public Set<Bidder> getBidders() {
+        return bidders;
+    }
+
+    public void setBidders(Set<Bidder> bidders) {
+        this.bidders = bidders;
     }
 
 }

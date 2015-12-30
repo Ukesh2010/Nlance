@@ -34,7 +34,14 @@ public class CategoryManager {
         category.setCategory_description("hehe");
         session.save(category);
         session.getTransaction().commit();
+    }
 
+    public Category fetchById(int catId) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        Category category = (Category) session.createQuery("from Category").list().get(0);
+        session.getTransaction().commit();
+        return category;
     }
 
 }

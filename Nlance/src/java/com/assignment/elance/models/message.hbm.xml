@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.assignment.elance.models.Message" table="messages">
+        <id name="message_id" column="message_id">
+            <generator class="native" />
+        </id>
+        <many-to-one name="job" class="com.assignment.elance.models.Job" lazy="false">
+            <column name="job_id"/>
+        </many-to-one>
+        <property name="message" column="message"  /> 
+        <property name="send_dir" type="boolean" column="send_dir"  /> 
+    </class>
+</hibernate-mapping>

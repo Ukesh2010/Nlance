@@ -11,11 +11,41 @@ package com.assignment.elance.models;
  */
 public class Message {
 
-    private Bidder bidder;
     private Job job;
-    private Employer employer;
     private int message_id;
-    private String message_description;
-    private boolean message_direction;
+    private String message;
+    private boolean send_dir;
+
+    public Job getJob() {
+        return job;
+    }
+
+    public void setJob(Job job) {
+        this.job = job;
+    }
+
+    public int getMessage_id() {
+        return message_id;
+    }
+
+    public void setMessage_id(int message_id) {
+        this.message_id = message_id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean isSend_dir() {
+        return send_dir;
+    }
+
+    public void setSend_dir(boolean send_dir) {
+        this.send_dir = send_dir;
+    }
 
 }

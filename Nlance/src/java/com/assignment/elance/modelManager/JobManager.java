@@ -5,10 +5,10 @@
  */
 package com.assignment.elance.modelManager;
 
+import com.assignment.elance.helper.SystemAttributes;
 import com.assignment.elance.models.Bidder;
 import com.assignment.elance.models.HibernateUtil;
 import com.assignment.elance.models.Job;
-import com.mysql.jdbc.log.Log;
 import java.util.List;
 import org.hibernate.Session;
 
@@ -18,70 +18,89 @@ import org.hibernate.Session;
  */
 public class JobManager {
 
+    //add job
     public int insert(Job job) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-
-//        Job job = new Job();
-//        job.setJob_title("test");
-//        job.setJob_description("abc");
-//        job.setJob_cost(1212);
-//        job.setJob_posted_date(new Date());
-//        job.setTime_period(1234);
-//        job.setJob_status("good");
-//        job.setEmployer((Employer) session.load(Employer.class, new Integer(1)));
-//        job.setBidder((Bidder) session.load(Bidder.class, new Integer(1)));
-//        job.setCategory((Category) session.load(Category.class, new Integer(1)));
         session.save(job);
         session.getTransaction().commit();
         return job.getJob_id();
     }
 
+    //Employer posted job list
     public List fetchJobsByEmployerId(int eId) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-
         List jobs = session.createQuery("from Job j where j.employer.employer_id=" + eId).list();
         session.getTransaction().commit();
         return jobs;
     }
 
+    //Employer posted Open job list
+    public List fetchJobsByEmployerIdAndOpen(int eId) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        List jobs = session.createQuery("from Job j where j.employer.employer_id=" + eId + "AND j.job_status='" + SystemAttributes.JobStatuses.OPEN + "'").list();
+        session.getTransaction().commit();
+        return jobs;
+    }
+
+    //All the Jobs list
     public List fetchJobs() {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List jobs = session.createQuery("from Job").list();
+        List jobs = session.createQuery("from Job job where job.bidder.bidder_id =" + null).list();
         session.getTransaction().commit();
         return jobs;
 
     }
 
+    //fetch Job of specific Id
     public Job getJobById(int id) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-
-        List jobs = session.createQuery("from Job j where j.job_id=" + id).list();
+        Job job = (Job) session.get(Job.class, new Integer(id));
         session.getTransaction().commit();
-        return jobs.size() > 0 ? (Job) jobs.get(0) : null;
-
+        return job;
+//        List jobs = session.createQuery("from Job j where j.job_id=" + id).list();
+//        session.getTransaction().commit();
+//        return jobs.size() > 0 ? (Job) jobs.get(0) : null;
     }
 
     public void addBidder(int bidderId, int jobId) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        Job job = (Job) session.load(Job.class, new Integer(jobId));
-        System.out.print(job.getJob_title());
-//        session.getTransaction().commit();
 
-//        session = HibernateUtil.getSessionFactory().getCurrentSession();
-//        session.beginTransaction();
+        Job job = (Job) session.load(Job.class, new Integer(jobId));
+
         Bidder bidder = (Bidder) session.load(Bidder.class, bidderId);
         job.setBidder(bidder);
-//        session.getTransaction().commit();
 
-//        session = HibernateUtil.getSessionFactory().getCurrentSession();
-//        session.beginTransaction();
         session.save(job);
         session.getTransaction().commit();
+    }
+
+    //change job status
+    public void changeStatus(int jobId, String status) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        Job job = (Job) session.load(Job.class, new Integer(jobId));
+        job.setJob_status(status);
+
+        session.update(job);
+        session.getTransaction().commit();
+
+    }
+
+    //Employer active jobs
+    public List activeJobList(int emp_id) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        List list = session.createQuery("from Job job where job.employer.employer_id=" + emp_id + " AND job.bidder.bidder_id >" + 0).list();
+        session.getTransaction().commit();
+        return list;
     }
 }

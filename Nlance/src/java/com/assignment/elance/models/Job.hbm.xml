@@ -17,11 +17,29 @@
         <many-to-one class="com.assignment.elance.models.Bidder" name="bidder">
             <column name="bidder_id"/>
         </many-to-one>
-        <set fetch="select" inverse="true" lazy="true" name="bids" table="bid">
+        <set fetch="select" inverse="true" lazy="false" name="bids" table="bid">
             <key>
                 <column name="job_id" not-null="true"/>
             </key>
             <one-to-many class="com.assignment.elance.models.Bid"/>
+        </set>
+        <set fetch="select" inverse="true" lazy="true" name="files" table="files">
+            <key>
+                <column name="job_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Files" />
+        </set>
+        <set fetch="select" inverse="true" lazy="true" name="messages" table="messages">
+            <key>
+                <column name="job_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Message"/>
+        </set>
+        <set fetch="select" inverse="true" lazy="true" name="milestones" table="milestone">
+            <key>
+                <column name="job_id" not-null="true"/>
+            </key>
+            <one-to-many class="com.assignment.elance.models.Milestone" />
         </set>
         <!--        <set fetch="select" inverse="true" lazy="true" name="job_skills" table="job_skill">
             <key>
@@ -30,7 +48,7 @@
             <one-to-many class="com.assignment.elance.models.Job_Skill"/>
         </set>-->
         
-        <set name="skills" table="job_skill" inverse="false" lazy="true" fetch="select" cascade="all"  >
+        <set name="skills" table="job_skill" inverse="false" lazy="false" fetch="select" cascade="all"  >
             <key>
                 <column name="job_id" not-null="true" />
             </key>
@@ -38,7 +56,8 @@
                 <column name="skill_id" not-null="true" />
             </many-to-many>
         </set>
-        <many-to-one name="category" class="com.assignment.elance.models.Category">
+        
+        <many-to-one lazy="false" name="category" class="com.assignment.elance.models.Category">
             <column name="category_id" />
         </many-to-one>
     </class>

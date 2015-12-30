@@ -16,6 +16,8 @@ public class Bid {
     private Job job;
     private String status;
     private Employer employer;
+    private long time_of_completion;
+    private float bidded_price;
 
     public Employer getEmployer() {
         return employer;
@@ -55,6 +57,22 @@ public class Bid {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public long getTime_of_completion() {
+        return time_of_completion;
+    }
+
+    public void setTime_of_completion(long time_of_completion) {
+        this.time_of_completion = time_of_completion;
+    }
+
+    public float getBidded_price() {
+        return bidded_price;
+    }
+
+    public void setBidded_price(float bidded_price) {
+        this.bidded_price = bidded_price;
     }
 
 }

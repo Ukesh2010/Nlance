@@ -10,6 +10,7 @@ import org.hibernate.Session;
 
 public class BidManager {
 
+    //Job Bids
     public List fetchByEmployer(int job_id) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
@@ -19,29 +20,29 @@ public class BidManager {
         return bidList;
     }
 
-    public List fetchByBidder(int bidder_id, int job_id) {
+    //
+//    public List fetchByBidder(int bidder_id, int job_id) {
+//        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+//        session.beginTransaction();
+//
+//        List bidList = session.createQuery("from Bid bid where bid.bidder.bidder_id =" + bidder_id + "and bid.job.job_id=" + job_id).list();
+//        session.getTransaction().commit();
+//        return bidList;
+//
+//    }
+    public int insert(int bidder_id, int job_id, float bidded_price, long toc) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List bidList = session.createQuery("from Bid bid where bid.bidder.bidder_id =" + bidder_id + "and bid.job.job_id=" + job_id).list();
-        session.getTransaction().commit();
-        return bidList;
+        Bidder bidder = (Bidder) session.load(Bidder.class, new Integer(bidder_id));
 
-    }
-
-    public int insert(int bidder_id, int job_id) {
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-
-        Bidder bidder = new Bidder();
-        bidder.setBidder_id(bidder_id);
-
-        Job job = new Job();
-        job.setJob_id(job_id);
+        Job job = (Job) session.load(Job.class, new Integer(job_id));
 
         Bid bid = new Bid();
         bid.setBidder(bidder);
         bid.setJob(job);
+        bid.setBidded_price(bidded_price);
+        bid.setTime_of_completion(toc);
         bid.setStatus(SystemAttributes.BidderStatuses.BIDED);
 
         session.save(bid);
@@ -52,31 +53,16 @@ public class BidManager {
     public List getBidByStatus(String status, int job_id) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-
         List bidList = session.createQuery("from Bid bid where bid.status ='" + status + "' and bid.job.job_id=" + job_id).list();
         session.getTransaction().commit();
-
         return bidList;
     }
 
-    public Bid getBidById(int bid_id) {
+    public void fromBiddedToAccepted(String status, int bid_id) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-
-        List bidList = session.createQuery("from Bid bid where bid.bid_id =" + bid_id).list();
-        session.getTransaction().commit();
-
-        return bidList.size() > 0 ? (Bid) bidList.get(0) : null;
-
-    }
-
-    public void changeStatus(String status, int bid_id) {
-        Bid bid = getBidById(bid_id);
+        Bid bid = (Bid) session.load(Bid.class, new Integer(bid_id));
         bid.setStatus(status);
-
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-
         session.update(bid);
         session.getTransaction().commit();
 
@@ -85,11 +71,32 @@ public class BidManager {
     public List getBidByStatusAndBidder(String status, int bidderId) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-
         List bidList = session.createQuery("from Bid bid where bid.status ='" + status + "' and bid.bidder.bidder_id=" + bidderId).list();
         session.getTransaction().commit();
-
         return bidList;
+    }
+
+    public List getBidByBidder(int bidderId) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        List bidList = session.createQuery("from Bid").list();
+        session.getTransaction().commit();
+        return bidList;
+
+    }
+
+    public int[] fromAcceptedToApproved(int bid_id) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        Bid bid = (Bid) session.get(Bid.class, new Integer(bid_id));
+        bid.setStatus(SystemAttributes.BidderStatuses.APPROVED);
+        int[] i = new int[2];
+        i[0] = bid.getJob().getJob_id();
+        i[1] = bid.getBidder().getBidder_id();
+        session.update(bid);
+        session.getTransaction().commit();
+        return i;
     }
 
 }

@@ -1,4 +1,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<jsp:useBean id="bidder" class="com.assignment.elance.models.Bidder" scope="session"/>
+<jsp:useBean id="employer" class="com.assignment.elance.models.Employer" scope="session"/>
+<%
+    if ((bidder.getBidder_id() > 0)) {
+        response.sendRedirect("bidderHome.jsp");
+    } else if ((employer.getEmployer_id() > 0)) {
+        response.sendRedirect("employerHome.jsp");
+    }%>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -32,17 +40,17 @@
                 <div class="navbar-header">
                     <a class="navbar-brand" href="index.jsp">Nlance</a>
                 </div>
-                <div>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="bidderSignup.jsp"><span class="glyphicon glyphicon-log-in"></span> Signup</a></li>
-                    </ul>
-                </div>
+                <!--                <div>
+                                    <ul class="nav navbar-nav navbar-right">
+                                        <li><a href="bidderSignup.jsp"><span class="glyphicon glyphicon-log-in"></span> Signup</a></li>
+                                    </ul>
+                                </div>-->
             </div>
         </nav>
 
 
         <div class="row">
-            <div class="col-sm-4 col-sm-offset-4">
+            <div class="col-sm-4 col-sm-offset-1">
                 <form role="form" method="post" action="<%= request.getContextPath()%>/LoginController?type=<%= 0%>">
                     <div class="form-group">
                         <label for="email">Email address:</label>
@@ -53,6 +61,40 @@
                         <input type="password" class="form-control" id="pwd" name="password" required>
                     </div>
                     <button type="submit" class="btn btn-default btn-block"> Signin</button>
+
+                </form>        
+            </div>
+            <div class="col-sm-4 col-sm-offset-1">
+                <form role="form" method="post" action="<%= request.getContextPath()%>/RegisterController?type=<%= 0%>">
+                    <div class="form-group">
+                        <label for="email">Email address:</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="un">Username:</label>
+                        <input type="text" class="form-control" id="un" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd">Password:</label>
+                        <input type="password" class="form-control" id="pwd" name="password" required>
+                    </div>
+                    <script>
+
+                        var register = function () {
+                            var email = $('#email').val();
+                            alert(email);
+                            $.post('<%= request.getContextPath()%>/RegisterController?type=<%= 2%>', {'email': email}, function (data) {
+                                        if (data == true) {
+
+                                        } else {
+                                            alert("Email address already used");
+                                        }
+
+                                    });
+                                };
+                    </script>
+
+                    <button id="registerBtn" onclick="register()" type="submit" class="btn btn-default btn-block"> Register</button>
 
                 </form>        
 

@@ -32,6 +32,18 @@
         <servlet-name>Logout</servlet-name>
         <servlet-class>com.assignment.elance.controller.Logout</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>MessageController</servlet-name>
+        <servlet-class>com.assignment.elance.controller.MessageController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FileUploadServlet</servlet-name>
+        <servlet-class>com.assignment.elance.controller.FileUploadServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SkillController</servlet-name>
+        <servlet-class>com.assignment.elance.controller.SkillController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Controller</servlet-name>
         <url-pattern>/Controller</url-pattern>
@@ -63,6 +75,18 @@
     <servlet-mapping>
         <servlet-name>Logout</servlet-name>
         <url-pattern>/Logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MessageController</servlet-name>
+        <url-pattern>/MessageController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FileUploadServlet</servlet-name>
+        <url-pattern>/FileUploadServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SkillController</servlet-name>
+        <url-pattern>/SkillController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

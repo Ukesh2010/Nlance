@@ -7,27 +7,27 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
-
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="">
         <meta name="author" content="">
+        <title>Nlance</title>
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/bootstrap.js"></script>
 
-        <title>Freelancer - Start Bootstrap Theme</title>
-
-        <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Custom CSS -->
-        <link href="css/freelancer.css" rel="stylesheet">
-
-        <!-- Custom Fonts -->
-        <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/jquery-ui.css" rel="stylesheet">
+        <script>
+            var ids = [];
+            function select(item) {
+                var id = $(item).val()
+                alert(id);
+//                    ids.push(id);
+            }
+        </script>
 
     </head>
 
@@ -49,7 +49,7 @@
 
         <div class="row">
             <div class="col-sm-8 col-sm-offset-2">
-                <form role="form" method="post" action="<%= request.getContextPath()%>/JobController">            
+                <form role="form" method="post" action="<%= request.getContextPath()%>/JobController?type=0">            
                     <label for="category">What type of work do you require?</label>
                     <select class="form-control" name="category" id="category">
                         <% CategoryManager cm = new CategoryManager();
@@ -63,29 +63,35 @@
                         %>
                     </select>
                     <br>
+
                     <label for="about">What is your project about?</label>
                     <input class="form-control" id="about" type="text" name="job_title"/>
                     <br>
+
                     <label> Tell us more about your project</label>
                     <label for="skills"> What skills are required.</label>
-                    <select name="skill" id="skills" class="form-control">
+                    <ul class="list-group">
+
                         <% SkillManager sm = new SkillManager();
                             Iterator iterator_skill = sm.fetch().iterator();
                             while (iterator_skill.hasNext()) {
                                 Skill skill = (Skill) iterator_skill.next();
                         %>
-                        <option value="<%= skill.getSkill_id()%>"><%= skill.getSkill_name()%></option>                        
+                        <li class="list-group-item"><input type="radio"  name="name" value="<%= skill.getSkill_id()%>" /><%= skill.getSkill_name()%></li> 
+
                         <%
                             }
                         %>
-                    </select>
+                    </ul>
+
                     <br>
                     <br>
                     <label for="description"> Describe your project.</label>                  
-                    <input class="form-control" id="description" type="text" name="job_description"/>
+                    <textarea class="form-control" id="description" name="job_description"></textarea>
                     <br>
+
                     <label for="budget">What budget do you have in mind?</label>                    
-                    <input id="budget" class="form-control" type="text" name="job_cost"/>
+                    <input id="budget" class="form-control" type="number" name="job_cost"/>
                     <br> 
                     <button type="submit" class="btn btn-default">Create New Project</button>
                 </form>
@@ -94,28 +100,9 @@
             </div>
         </div>
 
-
-
-
-        <!-- jQuery -->
-        <script src="js/jquery.js"></script>
-
-        <!-- Bootstrap Core JavaScript -->
-        <script src="js/bootstrap.min.js"></script>
-
-        <!-- Plugin JavaScript -->
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-        <script src="js/classie.js"></script>
-        <script src="js/cbpAnimatedHeader.js"></script>
-
-        <!-- Contact Form JavaScript -->
-        <script src="js/jqBootstrapValidation.js"></script>
-        <script src="js/contact_me.js"></script>
-
-        <!-- Custom Theme JavaScript -->
-        <script src="js/freelancer.js"></script>
-
     </body>
+
+
 
 </html>
 

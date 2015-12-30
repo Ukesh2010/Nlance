@@ -8,7 +8,7 @@
         <property name="email" column="email"/>
         <property name="username" column="username"/>
         <property name="password" column="password"/>
-        <!--        <set name="jobs" table="job" inverse="true" lazy="true" fetch="select">
+        <set name="jobs" table="job" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="bidder_id" not-null="true"/>
             </key>
@@ -19,6 +19,14 @@
                 <column name="bidder_id" not-null="true"/>
             </key>
             <one-to-many class="com.assignment.elance.models.Bid" />
-        </set>-->
+        </set>
+        <set name="skills" table="job_skill" inverse="false" lazy="false" fetch="select" cascade="all"  >
+            <key>
+                <column name="bidder_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="com.assignment.elance.models.Skill">
+                <column name="skill_id" not-null="true" />
+            </many-to-many>
+        </set>
     </class>
 </hibernate-mapping>

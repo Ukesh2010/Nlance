@@ -1,3 +1,15 @@
+<%@page import="com.assignment.elance.models.Milestone"%>
+<%@page import="com.assignment.elance.modelManager.MilestoneManager"%>
+<%@page import="com.assignment.elance.models.Skill"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.assignment.elance.models.Message"%>
+<%@page import="com.assignment.elance.modelManager.MessageManager"%>
+<%@page import="java.io.File"%>
+<%@page import="com.assignment.elance.helper.SystemMethods"%>
+<%@page import="com.assignment.elance.models.Files"%>
+<%@page import="com.assignment.elance.modelManager.FilesManager"%>
+<%@page import="com.assignment.elance.models.Job"%>
+<%@page import="com.assignment.elance.modelManager.JobManager"%>
 <%@page import="java.util.List"%>
 <%@page import="com.assignment.elance.helper.SystemAttributes"%>
 <%@page import="com.assignment.elance.modelManager.BidderManager"%>
@@ -12,6 +24,10 @@
         response.sendRedirect("employerSignin.jsp");
     }
     int jobId = Integer.parseInt(request.getParameter("pId"));
+    Job job = new JobManager().getJobById(jobId);
+
+    String filePath = request.getContextPath()
+            + File.separator + SystemAttributes.UPLOAD_DIRECTORY + File.separator;
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,18 +38,53 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>Freelancer - Start Bootstrap Theme</title>
+        <title>Nlance</title>
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/bootstrap.js"></script>
 
-        <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/jquery-ui.css" rel="stylesheet">
+        <script>
+            $(function () {
+                $("#tabs").tabs();
+                $("#mgmt-tabs").tabs();
+            });
 
-        <!-- Custom CSS -->
-        <link href="css/freelancer.css" rel="stylesheet">
+            setInterval(function () {
+                message = "";
+                $.post("<%= request.getContextPath()%>/MessageController", {
+                    "type": 1,
+                    "jobId":<%=jobId%>
+                }, function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].dir) {
+                            message = message + '<li class="bg-info">' + data[i].message + "</li>";
+                        } else {
+                            message = message + '<li class="bg-primary">' + data[i].message + "</li>";
+                        }
+                    }
+                    $("#message-box").html(message);
+                });
+            }, 5000);
 
-        <!-- Custom Fonts -->
-        <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+            function sendMessage(item) {
+                var job_id = $(item).attr('job-id');
+                var url = $(item).attr('url');
+                var msg = $(item).val();
+                $(item).val("");
+                $.post(url, {
+                    "job_id": job_id,
+                    "message": msg,
+                    "send_dir": false,
+                    "type": 0
+                },
+                function () {
+                    message = message + '<li class="bg-info">' + msg + "</li>";
+                    $("#message-box").html(message);
+                });
+            }</script>
 
     </head>
 
@@ -46,101 +97,196 @@
                 </div>
                 <div>
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="bidderSignup.jsp"><span class="glyphicon glyphicon-log-in"></span> Signup</a></li>
+                        <li><div class="dropdown">
+                                <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">Options
+                                    <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Repost</a></li>
+                                    <li><a href="#">Delete</a></li>
+                                </ul>
+                            </div></li>
+                        <li><a href="<%= request.getContextPath()%>/Logout?type=0"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
-
-        <div class="row">
-            <div class="col-sm-6 col-sm-offset-2">
-                <%
-                    BidManager bm = new BidManager();
-                    List bidApprovedtemp = bm.getBidByStatus(SystemAttributes.BidderStatuses.APPROVED, jobId);
-                    Bid bidApproved = bidApprovedtemp.size() > 0 ? (Bid) bidApprovedtemp.get(0) : null;
-                    if (bidApproved != null) {
-                %>
-                <%--<%= bidAccepted.getBid_id()%>--%>
-
-                <div class="list-group">
-                    <a href="#" class="list-group-item active">
-
-                        <h4 class="list-group-item-heading"><%= bidApproved.getBid_id()%></h4>
-                    </a>
-                </div>
-
-                <%
-                    }
-                %>   
-
-            </div>            
-        </div>
-
-        <div class="row">
+        <div class="row ">
             <div class="col-sm-4 col-sm-offset-2">
-                <h1>Proposals</h1>
-                <%
-                    Iterator bids = bm.getBidByStatus(SystemAttributes.BidderStatuses.BIDED, jobId).iterator();
-                    while (bids.hasNext()) {
-                        Bid bid = (Bid) bids.next();
-                        BidderManager bidMan = new BidderManager();
-                        bid.setBidder(bidMan.getBidderById(bid.getBidder().getBidder_id()));
-                %>
-                <div class="card card-block">
-                    <h4 class="card-title" bidder-id="<%= bid.getBid_id()%>"><%= bid.getBidder().getUsername()%></h4>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="card-link">View About Bidder</a>
-                    <a href="<%= request.getContextPath()%>/BidController?type=<%= SystemAttributes.BidControllerType.UPDATESTATUS%>&jobId=<%= jobId%>&bidId=<%= bid.getBid_id()%>&status=<%=SystemAttributes.BidderStatuses.ACCEPTED%>" class="card-link">Accept Proposal</a>
-                </div>
-                <%
-                    }
-                %>
-
-
-
+                <table class="table table-bordered">
+                    <tr><td>Title</td><td><%= job.getJob_title()%></td></tr>
+                    <tr><td>Description</td><td><%= job.getJob_description()%></td></tr>
+                </table>
             </div>
             <div class="col-sm-4">
-                <h2>Bid Waiting for Approval</h2>
-                <%
-                    List bidAcceptedtemp = bm.getBidByStatus(SystemAttributes.BidderStatuses.ACCEPTED, jobId);
-                    Bid bidAccepted = bidAcceptedtemp.size() > 0 ? (Bid) bidAcceptedtemp.get(0) : null;
-                    if (bidAccepted != null) {
-                %>
-                <%--<%= bidAccepted.getBid_id()%>--%>
+                <table class="table table-bordered">
+                    <tr><td>Posted Date</td><td><%= job.getJob_posted_date()%></td></tr>
+                    <tr><td>Category</td><td><%= job.getCategory().getCategory_id()%></td></tr>
+                    <tr><td>Skills</td> <td><%
+                        List skills = new ArrayList();
+                        skills.addAll(job.getSkills());
+                        Iterator skils = skills.iterator();
+                        while (skils.hasNext()) {
+                            %>
+                            <%= ((Skill) skils.next()).getSkill_name()%>
+                            <%
+                                }
+                            %></td>
+                    </tr>
+                </table>
 
-                <div class="list-group">
-                    <a href="#" class="list-group-item active">
 
-                        <h4 class="list-group-item-heading"><%= bidAccepted.getBid_id()%></h4>
-                    </a>
+            </div>
+        </div>
+        <div class="row">
+            <div class=" col-lg-12">
+                <div id="tabs">
+                    <ul>
+                        <li><a href="#tabs-1">Proposals</a></li>
+                        <li><a href="#tabs-2">Management</a></li>
+                    </ul>
+                    <div id="tabs-1">
+                        <table class="table table-striped">
+                            <thead>
+                            <th>Bid Id</th>
+                            <th>Bidder Username</th>
+                            <th>Project Bid price</th>
+                            <th>Project Bid Time</th>
+                            <th>Action</th>
+                            </thead>
+                            <tbody>
+                                <%
+                                    BidManager bm = new BidManager();
+                                    Iterator bidsAccepted = bm.getBidByStatus(SystemAttributes.BidderStatuses.ACCEPTED, jobId).iterator();
+                                    while (bidsAccepted.hasNext()) {
+                                        Bid bid = (Bid) bidsAccepted.next();
+                                %>
+                                <tr>
+                                    <td><%= bid.getBid_id()%></td>
+                                    <td><%= bid.getBidder().getUsername()%></td>
+                                    <td><%= bid.getBidded_price()%></td>
+                                    <td><%= bid.getTime_of_completion()%></td>
+
+                                    <td><button class="btn btn-success">Accepted</button></td>
+                                </tr>
+                                <%
+                                    }
+                                %>
+                                <%
+                                    Iterator bids = bm.getBidByStatus(SystemAttributes.BidderStatuses.BIDED, jobId).iterator();
+                                    while (bids.hasNext()) {
+                                        Bid bid = (Bid) bids.next();
+                                %>
+                                <tr>
+                                    <td><%= bid.getBid_id()%></td>
+                                    <td><%= bid.getBidder().getUsername()%></td>
+                                    <td><%= bid.getBidded_price()%></td>
+                                    <td><%= bid.getTime_of_completion()%></td>
+
+                                    <td><a class="btn btn-success" href="<%= request.getContextPath()%>/BidController?type=<%= SystemAttributes.BidControllerType.ACCEPT%>&jobId=<%= jobId%>&bidId=<%= bid.getBid_id()%>&status=<%=SystemAttributes.BidderStatuses.ACCEPTED%>" class="card-link">Accept Proposal</a></td>
+                                </tr>
+                                <%
+                                    }
+                                %>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div id="tabs-2">
+                        <%
+                            if (job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS)) {
+                        %>
+                        <div class="row">
+                            <div class="col-sm-offset-2 col-sm-8">
+                                <div id="mgmt-tabs">
+                                    <ul>
+                                        <li><a href="#mgmt-tabs-1">Files</a></li>
+                                        <li><a href="#mgmt-tabs-2">Messages</a></li>
+                                        <li><a href="#mgmt-tabs-3">Milestones</a></li>
+                                    </ul>
+                                    <div id="mgmt-tabs-1">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                            <th>File Name</th>
+                                            <th>Preview</th>
+                                            </thead>
+                                            <tbody>
+                                                <%                        FilesManager fm = new FilesManager();
+                                                    Iterator filesIterator = fm.fetchByJobId(jobId).iterator();
+
+                                                    while (filesIterator.hasNext()) {
+                                                        Files file = (Files) filesIterator.next();
+                                                %>
+                                                <tr>
+                                                    <td>
+                                                        <a class="btn btn-block" href="<%=filePath + file.getFile()%>"><%= file.getFile_name()%></a>
+                                                    </td>
+                                                    <td>
+                                                        <%
+                                                            if (SystemMethods.checkPictureFileType(file.getFile_name())) {
+                                                        %>
+                                                        <img src="<%=filePath + file.getFile()%>" class="img-rounded" style="width: 200px;" />
+                                                        <%
+                                                            }
+                                                        %>
+                                                    </td>
+                                                </tr>
+                                                <%
+                                                    }
+                                                %>
+                                                <tr>
+                                            <form method="post" action="<%= request.getContextPath()%>/FileUploadServlet?jobId=<%=jobId%>" enctype="multipart/form-data">
+                                                <td>
+                                                    <input class="input-sm " type="file"  name="uploadFile" />
+                                                </td>
+                                                <td>        
+                                                    <input type="submit" value="Upload" />
+                                                </td>
+                                            </form>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="mgmt-tabs-2">
+                                        <div>
+                                            <div class="h1">Message</div>
+                                            <div style="width: 200px; height: 100px; overflow-y: scroll;">
+                                                <ul id="message-box" class="list-unstyled">
+                                                    <li class="bg-primary "></li>
+                                                </ul>
+                                            </div>
+                                            <input onkeydown="if (event.keyCode == 13)
+                                                        sendMessage(this)" type="text" url="<%= request.getContextPath()%>/MessageController" job-id="<%=jobId%>"   id="sendMessage" value="" />
+
+                                        </div>
+                                    </div>
+                                    <div id="mgmt-tabs-3">
+                                        <%
+                                            MilestoneManager msm = new MilestoneManager();
+                                            Iterator ms = msm.fetchMilestones(jobId).iterator();
+                                            while (ms.hasNext()) {
+                                                Milestone milestone = (Milestone) ms.next();
+                                        %>
+                                        <%= milestone.getMilestone_amount()%>
+                                        <%
+                                            }
+
+                                        %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <%                            }
+                        %>
+
+
+                    </div>
                 </div>
-
-                <%
-                    }
-                %>                    
             </div>
         </div>
 
 
 
-
-        <!-- jQuery -->
-        <script src="js/jquery.js"></script>
-
-        <!-- Bootstrap Core JavaScript -->
-        <script src="js/bootstrap.min.js"></script>
-
-        <!-- Plugin JavaScript -->
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-        <script src="js/classie.js"></script>
-        <script src="js/cbpAnimatedHeader.js"></script>
-
-        <!-- Contact Form JavaScript -->
-        <script src="js/jqBootstrapValidation.js"></script>
-        <script src="js/contact_me.js"></script>
-
-        <!-- Custom Theme JavaScript -->
-        <script src="js/freelancer.js"></script>
 
     </body>
 
