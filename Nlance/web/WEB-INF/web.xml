@@ -44,6 +44,14 @@
         <servlet-name>SkillController</servlet-name>
         <servlet-class>com.assignment.elance.controller.SkillController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>MilestoneController</servlet-name>
+        <servlet-class>com.assignment.elance.controller.MilestoneController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SearchController</servlet-name>
+        <servlet-class>com.assignment.elance.controller.SearchController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Controller</servlet-name>
         <url-pattern>/Controller</url-pattern>
@@ -87,6 +95,14 @@
     <servlet-mapping>
         <servlet-name>SkillController</servlet-name>
         <url-pattern>/SkillController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MilestoneController</servlet-name>
+        <url-pattern>/MilestoneController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SearchController</servlet-name>
+        <url-pattern>/SearchController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

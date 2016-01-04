@@ -29,6 +29,17 @@ public class Job {
     private Set<Files> files;
     private Set<Message> messages;
     private Set<Milestone> milestones;
+    private Date start_date;
+    private Date end_date;
+    private float bidded_price;
+
+    public float getBidded_price() {
+        return bidded_price;
+    }
+
+    public void setBidded_price(float bidded_price) {
+        this.bidded_price = bidded_price;
+    }
 
     public Set<Milestone> getMilestones() {
         return milestones;
@@ -148,6 +159,22 @@ public class Job {
 
     public void setFiles(Set<Files> files) {
         this.files = files;
+    }
+
+    public Date getStart_date() {
+        return start_date;
+    }
+
+    public void setStart_date(Date start_date) {
+        this.start_date = start_date;
+    }
+
+    public Date getEnd_date() {
+        return end_date;
+    }
+
+    public void setEnd_date(Date end_date) {
+        this.end_date = end_date;
     }
 
 }

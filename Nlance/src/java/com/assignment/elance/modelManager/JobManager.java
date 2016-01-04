@@ -7,9 +7,14 @@ package com.assignment.elance.modelManager;
 
 import com.assignment.elance.helper.SystemAttributes;
 import com.assignment.elance.models.Bidder;
+import com.assignment.elance.models.Employer;
 import com.assignment.elance.models.HibernateUtil;
 import com.assignment.elance.models.Job;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 /**
@@ -19,12 +24,39 @@ import org.hibernate.Session;
 public class JobManager {
 
     //add job
-    public int insert(Job job) {
+    public int insert(int category_id, ArrayList<Integer> skill, String title, String description, float cost, Employer emp) {
+        int lastId;
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        session.save(job);
+
+        Query query = session.createSQLQuery("INSERT INTO `job`(`job_title`, `job_description`, `job_cost`, `time_period`, `job_posted_date`, `job_status`, `employer_id`,  `category_id`) VALUES (:job_title, :job_description, :job_cost, :time_period, :job_posted_date, :job_status, :employer_id, :category_id)")
+                .setParameter("job_title", title)
+                .setParameter("job_description", description)
+                .setParameter("job_cost", cost)
+                .setParameter("time_period", new Long(00))
+                .setParameter("job_posted_date", new Date())
+                .setParameter("job_status", SystemAttributes.JobStatuses.OPEN)
+                .setParameter("employer_id", emp.getEmployer_id())
+                //                .setParameter("bidder_id", null)
+                .setParameter("category_id", category_id);
+        query.executeUpdate();
+        lastId = ((BigInteger) session.createSQLQuery("SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
+
         session.getTransaction().commit();
-        return job.getJob_id();
+        insertJobSkills(lastId, skill);
+        return lastId;
+    }
+
+    private void insertJobSkills(int job_id, ArrayList<Integer> skill) {
+
+        Session session2 = HibernateUtil.getSessionFactory().getCurrentSession();
+        session2.beginTransaction();
+        for (int skill_id : skill) {
+
+            Query query2 = session2.createSQLQuery("INSERT INTO `job_skill`(`job_id`, `skill_id`,`bidder_id`) VALUES (:job_id,:skill_id,:bidder_id)").setParameter("job_id", job_id).setParameter("skill_id", skill_id).setParameter("bidder_id", 1);
+            query2.executeUpdate();
+        }
+        session2.getTransaction().commit();
     }
 
     //Employer posted job list
@@ -41,6 +73,15 @@ public class JobManager {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         List jobs = session.createQuery("from Job j where j.employer.employer_id=" + eId + "AND j.job_status='" + SystemAttributes.JobStatuses.OPEN + "'").list();
+        session.getTransaction().commit();
+        return jobs;
+    }
+
+    //Closed jobs
+    public List fetchJobsByEmployerIdAndClosed(int eId) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        List jobs = session.createQuery("from Job j where j.employer.employer_id=" + eId + "AND j.job_status='" + SystemAttributes.JobStatuses.CLOSED + "'").list();
         session.getTransaction().commit();
         return jobs;
     }
@@ -94,6 +135,20 @@ public class JobManager {
 
     }
 
+    public void setStartAndEndDate(int jobId, long hrs, float price) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        Job job = (Job) session.load(Job.class, new Integer(jobId));
+        Date currentDate = new Date();
+        job.setStart_date(currentDate);
+        long tempDate = currentDate.getTime() + hrs * 60 * 60 * 1000;
+        job.setEnd_date(new Date(tempDate));
+        job.setBidded_price(price);
+        session.update(job);
+        session.getTransaction().commit();
+    }
+
     //Employer active jobs
     public List activeJobList(int emp_id) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -102,5 +157,16 @@ public class JobManager {
         List list = session.createQuery("from Job job where job.employer.employer_id=" + emp_id + " AND job.bidder.bidder_id >" + 0).list();
         session.getTransaction().commit();
         return list;
+    }
+
+    //All the Jobs list
+    public List SearchJobsByTitle(String key) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        List jobs = session.createQuery("from Job where job_title like '%" + key + "%'").list();
+        session.getTransaction().commit();
+        return jobs;
+
     }
 }

@@ -30,13 +30,28 @@ public class EmployerManager {
         session.getTransaction().commit();
     }
 
-    public Employer login(String username, String password) {
+//    public Employer login(String username, String password) {
+//        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+//        session.beginTransaction();
+//
+//        List result = session.createQuery("from Employer").list();
+//        session.getTransaction().commit();
+//        return result.size() > 0 ? (Employer) result.get(0) : null;
+//
+//    }
+    
+     public Employer login(String username, String password) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List result = session.createQuery("from Employer").list();
+        List result = session.createQuery("from Employer employer where employer.email='" + username + "' AND employer.password='" + password + "'").list();
         session.getTransaction().commit();
-        return result.size() > 0 ? (Employer) result.get(0) : null;
+        if (result.size() > 0) {
+            return (Employer) result.get(0);
+
+        } else {
+            return null;
+        }
 
     }
 }

@@ -18,12 +18,12 @@ public class SignupController extends HttpServlet {
         switch (type) {
             case 0:
                 BidderManager biddermanager = new BidderManager();
-                biddermanager.register(request.getParameter("username"), request.getParameter("email"), request.getParameter("password"));
+                biddermanager.register(request.getParameter("username"), request.getParameter("password"), request.getParameter("email"));
                 response.sendRedirect("bidderSignin.jsp");
                 break;
             case 1:
                 EmployerManager employerManager = new EmployerManager();
-                employerManager.register(request.getParameter("username"), request.getParameter("email"), request.getParameter("password"));
+                employerManager.register(request.getParameter("username"), request.getParameter("password"), request.getParameter("email"));
                 response.sendRedirect("employerSignin.jsp");
                 break;
             case 2:

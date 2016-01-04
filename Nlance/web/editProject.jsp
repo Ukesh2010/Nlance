@@ -1,17 +1,31 @@
+<%@page import="java.util.Set"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.HashSet"%>
+<%@page import="com.assignment.elance.models.Job"%>
+<%@page import="com.assignment.elance.modelManager.JobManager"%>
 <%@page import="com.assignment.elance.models.Skill"%>
 <%@page import="com.assignment.elance.modelManager.SkillManager"%>
 <%@page import="com.assignment.elance.models.Category"%>
 <%@page import="org.apache.jasper.tagplugins.jstl.core.ForEach"%>
 <%@page import="java.util.Iterator"%>
 <%@page import="com.assignment.elance.modelManager.CategoryManager"%>
-<jsp:useBean id="employer" class="com.assignment.elance.models.Employer" scope="session"/>
-<%
-    if (employer.getEmployer_id() <= 0) {
-        response.sendRedirect("employerSignin.jsp");
-    }
-
-%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%
+    Job job = new JobManager().getJobById(Integer.parseInt(request.getParameter("jobId")));
+    Set<Skill> selectedSkills = job.getSkills();
+%>
+<%!
+    public boolean checkIfSelected(Set<Skill> selectedSkills, Skill skill) {
+        Iterator temp = selectedSkills.iterator();
+        while (temp.hasNext()) {
+            Skill selectedskill = (Skill) temp.next();
+            if (selectedskill.getSkill_id() == skill.getSkill_id()) {
+                return true;
+            }
+        }
+        return false;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -27,14 +41,6 @@
 
         <link href="css/bootstrap.css" rel="stylesheet">
         <link href="css/jquery-ui.css" rel="stylesheet">
-        <script>
-            var ids = [];
-            function select(item) {
-                var id = $(item).val()
-                alert(id);
-//                    ids.push(id);
-            }
-        </script>
 
     </head>
 
@@ -47,8 +53,7 @@
                 </div>
                 <div>
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#"><span class=""></span><%= employer.getUsername()%></a></li>
-                        <li><a href="<%= request.getContextPath()%>/Logout?type=1"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                        <li><a href="bidderSignup.jsp"><span class="glyphicon glyphicon-log-in"></span> Signup</a></li>
                     </ul>
                 </div>
             </div>
@@ -65,7 +70,7 @@
                             while (iterator.hasNext()) {
                                 Category category = (Category) iterator.next();
                         %>
-                        <option value="<%= category.getCategory_id()%>"><%= category.getCategory_name()%></option>
+                        <option <%= job.getCategory().getCategory_id() == category.getCategory_id() ? "selected='selected'" : ""%> value="<%= category.getCategory_id()%>"><%= category.getCategory_name()%></option>
                         <%
                             }
                         %>
@@ -73,20 +78,20 @@
                     <br>
 
                     <label for="about">What is your project about?</label>
-                    <input class="form-control" id="about" type="text" name="job_title"/>
+                    <input class="form-control" id="about" type="text" name="job_title" value="<%= job.getJob_title()%>"/>
                     <br>
 
                     <label> Tell us more about your project</label>
                     <label for="skills"> What skills are required.</label>
                     <ul class="list-group">
-
-                        <% SkillManager sm = new SkillManager();
+                        <%
+                            SkillManager sm = new SkillManager();
                             Iterator iterator_skill = sm.fetch().iterator();
                             while (iterator_skill.hasNext()) {
                                 Skill skill = (Skill) iterator_skill.next();
                         %>
-                        <li class="list-group-item"><input type="checkbox" name="<%= skill.getSkill_id()%>" /><%= skill.getSkill_name()%></li> 
-                        
+                        <li class="list-group-item"><input <%=checkIfSelected(selectedSkills, skill) ? "checked='checked'" : ""%> type="checkbox" name="<%= skill.getSkill_id()%>" /><%= skill.getSkill_name()%></li> 
+
                         <%
                             }
                         %>
@@ -95,13 +100,13 @@
                     <br>
                     <br>
                     <label for="description"> Describe your project.</label>                  
-                    <textarea class="form-control" id="description" name="job_description"></textarea>
+                    <textarea class="form-control" id="description" name="job_description" ><%= job.getJob_description()%></textarea>
                     <br>
 
                     <label for="budget">What budget do you have in mind?</label>                    
-                    <input id="budget" class="form-control" type="number" name="job_cost"/>
+                    <input id="budget" class="form-control" type="number" name="job_cost" value="<%=job.getJob_cost()%>"/>
                     <br> 
-                    <button type="submit" class="btn btn-default">Create New Project</button>
+                    <button type="submit" class="btn btn-default">Repost Project</button>
                 </form>
 
 

@@ -1,3 +1,4 @@
+<%@page import="java.util.Date"%>
 <%@page import="com.assignment.elance.models.Milestone"%>
 <%@page import="com.assignment.elance.modelManager.MilestoneManager"%>
 <%@page import="com.assignment.elance.models.Skill"%>
@@ -25,6 +26,17 @@
     }
     int jobId = Integer.parseInt(request.getParameter("pId"));
     Job job = new JobManager().getJobById(jobId);
+    int remDays = SystemMethods.subtractDate(new Date(), job.getJob_posted_date());
+    String status = "";
+    if (job.getJob_status().equals(SystemAttributes.JobStatuses.OPEN)) {
+        status = (remDays <= 7) ? "Open" : "Expired";
+    } else if (job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS)) {
+        status = (SystemMethods.subtractDate(new Date(), job.getEnd_date()) < 0) ? "Inprogress but Late" : "Inprogress";
+    } else if (job.getJob_status().equals(SystemAttributes.JobStatuses.CLOSED)) {
+        status = "Closed";
+    } else if (job.getJob_status().equals(SystemAttributes.JobStatuses.S_CLOSED)) {
+        status = "Closed successfully";
+    }
 
     String filePath = request.getContextPath()
             + File.separator + SystemAttributes.UPLOAD_DIRECTORY + File.separator;
@@ -49,6 +61,23 @@
             $(function () {
                 $("#tabs").tabs();
                 $("#mgmt-tabs").tabs();
+                var url = "<%=request.getContextPath()%>" + "/MilestoneController", milestoneId;
+                function milestonestatuschange(item, type) {
+                    milestoneId = $(item).attr('milestoneid');
+                    $.post(url, {
+                        "type": type,
+                        "milestoneId": milestoneId
+                    }, function (data) {
+                        location.reload();
+                    });
+                }
+                ;
+                $('#msBtnAcceptId').on('click', function () {
+                    milestonestatuschange(this, 1)
+                });
+                $('#msBtnRejectId').on('click', function () {
+                    milestonestatuschange(this, 2)
+                });
             });
 
             setInterval(function () {
@@ -97,54 +126,65 @@
                 </div>
                 <div>
                     <ul class="nav navbar-nav navbar-right">
-                        <li><div class="dropdown">
-                                <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">Options
-                                    <span class="caret"></span></button>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Repost</a></li>
-                                    <li><a href="#">Delete</a></li>
-                                </ul>
-                            </div></li>
+                        <li><a href="#"><span class=""></span><%= employer.getUsername()%></a></li>
                         <li><a href="<%= request.getContextPath()%>/Logout?type=0"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
-        <div class="row ">
-            <div class="col-sm-4 col-sm-offset-2">
-                <table class="table table-bordered">
-                    <tr><td>Title</td><td><%= job.getJob_title()%></td></tr>
-                    <tr><td>Description</td><td><%= job.getJob_description()%></td></tr>
-                </table>
-            </div>
-            <div class="col-sm-4">
-                <table class="table table-bordered">
-                    <tr><td>Posted Date</td><td><%= job.getJob_posted_date()%></td></tr>
-                    <tr><td>Category</td><td><%= job.getCategory().getCategory_id()%></td></tr>
-                    <tr><td>Skills</td> <td><%
-                        List skills = new ArrayList();
-                        skills.addAll(job.getSkills());
-                        Iterator skils = skills.iterator();
-                        while (skils.hasNext()) {
-                            %>
-                            <%= ((Skill) skils.next()).getSkill_name()%>
-                            <%
-                                }
-                            %></td>
-                    </tr>
-                </table>
 
-
-            </div>
-        </div>
         <div class="row">
             <div class=" col-lg-12">
                 <div id="tabs">
                     <ul>
-                        <li><a href="#tabs-1">Proposals</a></li>
-                        <li><a href="#tabs-2">Management</a></li>
+                        <li><a href="#tabs-1">Project Detail</a></li>
+                        <li><a href="#tabs-2">Proposals</a></li>
+                        <li><a href="#tabs-3">Management</a></li>
                     </ul>
                     <div id="tabs-1">
+                        <table class="table table-bordered">
+                            <tr><td>Title</td><td><%= job.getJob_title()%></td></tr>
+                            <tr><td>Description</td><td><%= job.getJob_description()%></td></tr>
+                            <tr><td>Posted Date</td><td><%= job.getJob_posted_date()%></td></tr>
+                            <tr><td>Cost</td><td><%= job.getJob_cost()%></td></tr>
+                            <tr><td>Category</td><td><%= job.getCategory().getCategory_id()%></td></tr>
+                            <tr><td>Skills</td> <td><%
+                                List skills = new ArrayList();
+                                skills.addAll(job.getSkills());
+                                Iterator skils = skills.iterator();
+                                while (skils.hasNext()) {
+                                    %>
+                                    <%= ((Skill) skils.next()).getSkill_name()%>
+                                    <%
+                                        }
+                                    %></td>
+                            </tr>
+                            <tr>
+                            <tr><td>Status</td><td><%= status%></td></tr>
+                            </tr>
+                        </table>
+                        <% if (status.equals("Open")) {
+                        %>
+                        <a class="btn btn-danger" href="<%= request.getContextPath()%>/JobController?type=2&jobId=<%=jobId%>" >Close</a>
+                        <%
+                        } else if (status.equals("Expired") || status.equals("Closed")) {
+                        %>
+                        <a class="btn btn-danger" href="editProject.jsp?jobId=<%=jobId%>">Repost</a>
+                        <%
+                        } else if (status.equals("Inprogress but Late")) {
+                        %>
+                        <a class="btn btn-danger" href="<%= request.getContextPath()%>/JobController?type=2&jobId=<%=jobId%>" >Close</a>
+                        <a class="btn btn-danger" href="<%= request.getContextPath()%>/JobController?type=3&jobId=<%=jobId%>" >Close Successfully</a>
+
+                        <%
+                        } else if (status.equals("Inprogress")) {
+                        %>
+                        <a class="btn btn-danger" href="<%= request.getContextPath()%>/JobController?type=3&jobId=<%=jobId%>" >Close Successfully</a>
+                        <%
+                            }
+                        %>
+                    </div>
+                    <div id="tabs-2">
                         <table class="table table-striped">
                             <thead>
                             <th>Bid Id</th>
@@ -181,8 +221,9 @@
                                     <td><%= bid.getBidder().getUsername()%></td>
                                     <td><%= bid.getBidded_price()%></td>
                                     <td><%= bid.getTime_of_completion()%></td>
-
+                                    <% if (remDays <= 7) {%>
                                     <td><a class="btn btn-success" href="<%= request.getContextPath()%>/BidController?type=<%= SystemAttributes.BidControllerType.ACCEPT%>&jobId=<%= jobId%>&bidId=<%= bid.getBid_id()%>&status=<%=SystemAttributes.BidderStatuses.ACCEPTED%>" class="card-link">Accept Proposal</a></td>
+                                    <%} %>
                                 </tr>
                                 <%
                                     }
@@ -191,9 +232,9 @@
                         </table>
 
                     </div>
-                    <div id="tabs-2">
+                    <div id="tabs-3">
                         <%
-                            if (job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS)) {
+                            if (job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS) || job.getJob_status().equals(SystemAttributes.JobStatuses.CLOSED) || job.getJob_status().equals(SystemAttributes.JobStatuses.S_CLOSED)) {
                         %>
                         <div class="row">
                             <div class="col-sm-offset-2 col-sm-8">
@@ -230,10 +271,11 @@
                                                         %>
                                                     </td>
                                                 </tr>
-                                                <%
-                                                    }
-                                                %>
                                                 <tr>
+                                                    <%
+                                                        }
+                                                        if (job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS)) {
+                                                    %>
                                             <form method="post" action="<%= request.getContextPath()%>/FileUploadServlet?jobId=<%=jobId%>" enctype="multipart/form-data">
                                                 <td>
                                                     <input class="input-sm " type="file"  name="uploadFile" />
@@ -242,7 +284,12 @@
                                                     <input type="submit" value="Upload" />
                                                 </td>
                                             </form>
+
+                                            <%
+                                                }
+                                            %>
                                             </tr>
+
                                             </tbody>
                                         </table>
                                     </div>
@@ -254,23 +301,55 @@
                                                     <li class="bg-primary "></li>
                                                 </ul>
                                             </div>
+                                            <% if (job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS)) {%>
                                             <input onkeydown="if (event.keyCode == 13)
                                                         sendMessage(this)" type="text" url="<%= request.getContextPath()%>/MessageController" job-id="<%=jobId%>"   id="sendMessage" value="" />
+                                            <% } %>
 
                                         </div>
                                     </div>
                                     <div id="mgmt-tabs-3">
-                                        <%
-                                            MilestoneManager msm = new MilestoneManager();
-                                            Iterator ms = msm.fetchMilestones(jobId).iterator();
-                                            while (ms.hasNext()) {
-                                                Milestone milestone = (Milestone) ms.next();
-                                        %>
-                                        <%= milestone.getMilestone_amount()%>
-                                        <%
-                                            }
+                                        <div>
+                                            <table class="table table-responsive"> 
+                                                <thead>
+                                                <th>Price</th>
+                                                <th>Description</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                                </thead>
+                                                <tbody>
+                                                    <%
+                                                        MilestoneManager mm = new MilestoneManager();
+                                                        List milestones = mm.fetchMilestones(jobId);
+                                                        float paidMoney = 0;
+                                                        Iterator milestoneIterator = milestones.iterator();
+                                                        while (milestoneIterator.hasNext()) {
+                                                            Milestone milestone = (Milestone) milestoneIterator.next();
+                                                            paidMoney = ((milestone.getMilestone_status() == SystemAttributes.MileStoneStatuses.ACCEPT) ? milestone.getMilestone_amount() : 0) + paidMoney;
+                                                    %>
+                                                    <tr>
+                                                        <td><%= milestone.getMilestone_amount()%></td>
+                                                        <td><%= milestone.getMilestone_description()%></td>
+                                                        <td><%= milestone.getMilestone_status()%></td>
+                                                        <td> <% if (milestone.getMilestone_status() == SystemAttributes.MileStoneStatuses.REQUEST) {%>
+                                                            <button class="btn btn-sm btn-success" id="msBtnAcceptId" milestoneid="<%=milestone.getMilestone_id()%>">Accept</button> 
+                                                            <button id="msBtnRejectId" class="btn btn-sm btn-danger" milestoneid="<%=milestone.getMilestone_id()%>">Reject</button>
+                                                            <%  } else if (milestone.getMilestone_status() == SystemAttributes.MileStoneStatuses.ACCEPT) {%>
+                                                            <label class="btn bg-info">Accepted</label>    
+                                                            <% } else if (milestone.getMilestone_status() == SystemAttributes.MileStoneStatuses.REJECT) {%>
+                                                            <label class="btn bg-info">Rejected</label>    
 
-                                        %>
+                                                            <% } %></td>
+                                                    </tr>
+                                                    <%
+                                                        }
+                                                    %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <label class=" btn btn-default">Total Project Price : <%= job.getBidded_price()%></label> <label class="btn btn-default">Paid Money : <%= paidMoney%> </label>
+                                        <button id="createMilestone" class="btn btn-social" paidmoney="<%= paidMoney%>">Create New Milestone</button>
+
                                     </div>
                                 </div>
                             </div>

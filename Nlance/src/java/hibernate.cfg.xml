@@ -17,7 +17,6 @@
     <mapping resource="com/assignment/elance/models/Job.hbm.xml"/>
     <mapping resource="com/assignment/elance/models/Bid.hbm.xml"/>
     <mapping resource="com/assignment/elance/models/Skill.hbm.xml"/>
-    <!--<mapping resource="com/assignment/elance/models/Job_Skill.hbm.xml"/>-->
     <mapping resource="com/assignment/elance/models/Category.hbm.xml"/>
     <mapping resource="com/assignment/elance/models/files.hbm.xml"/>
     <mapping resource="com/assignment/elance/models/message.hbm.xml"/>

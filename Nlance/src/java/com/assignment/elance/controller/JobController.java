@@ -5,23 +5,20 @@
  */
 package com.assignment.elance.controller;
 
+import com.assignment.elance.helper.SystemAttributes;
 import com.assignment.elance.modelManager.CategoryManager;
 import com.assignment.elance.modelManager.JobManager;
 import com.assignment.elance.modelManager.SkillManager;
-import com.assignment.elance.models.Category;
 import com.assignment.elance.models.Employer;
 import com.assignment.elance.models.Job;
 import com.assignment.elance.models.Skill;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -48,36 +45,18 @@ public class JobController extends HttpServlet {
         switch (Integer.parseInt(request.getParameter("type"))) {
             case 0:
                 HttpSession session = request.getSession();
+                ArrayList<Integer> skills = new ArrayList<Integer>();
+                SkillManager sm = new SkillManager();
+                Iterator temp = sm.fetch().iterator();
+                while (temp.hasNext()) {
+                    Skill skill = (Skill) temp.next();
+                    if (request.getParameter(skill.getSkill_id() + "") != null && request.getParameter(skill.getSkill_id() + "").equals("on")) {
+                        skills.add(skill.getSkill_id());
+                    }
 
-                Category category = new Category();
-                category.setCategory_id(Integer.parseInt(request.getParameter("category")));
-
-                Skill skill = new Skill();
-                skill.setSkill_id(Integer.parseInt(request.getParameter("skill")));
-
-                Job job = new Job();
-
-                job.setJob_title(request.getParameter("job_title"));
-                job.setJob_description(request.getParameter("job_description"));
-                job.setJob_cost(Float.parseFloat(request.getParameter("job_cost")));
-                job.setCategory(category);
-                job.setTime_period(1212);
-                job.setJob_posted_date(new Date());
-                job.setJob_status("Open");
-
-                job.setEmployer((Employer) session.getAttribute("employer"));
-
-                Set<Skill> skills = new HashSet<Skill>();
-                skills.add(skill);
-                job.setSkills(skills);
-
-                Set<Job> jobs = new HashSet<Job>();
-                jobs.add(job);
-
-                skill.setJobs(jobs);
-
+                }
                 JobManager jm = new JobManager();
-                int job_id = jm.insert(job);
+                int job_id = jm.insert(Integer.parseInt(request.getParameter("category")), skills, request.getParameter("job_title"), request.getParameter("job_description"), Float.parseFloat(request.getParameter("job_cost")), (Employer) session.getAttribute("employer"));
 
                 response.sendRedirect("projectOverview.jsp?pId=" + job_id);
                 break;
@@ -105,6 +84,14 @@ public class JobController extends HttpServlet {
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 response.getWriter().write(json);
+                break;
+            case 2:
+                JobManager jobMan = new JobManager();
+                jobMan.changeStatus(Integer.parseInt(request.getParameter("jobId")), SystemAttributes.JobStatuses.CLOSED);
+                break;
+            case 3:
+                JobManager jobMana = new JobManager();
+                jobMana.changeStatus(Integer.parseInt(request.getParameter("jobId")), SystemAttributes.JobStatuses.S_CLOSED);
                 break;
         }
 

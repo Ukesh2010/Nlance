@@ -9,17 +9,18 @@ import com.assignment.elance.helper.SystemAttributes;
 import com.assignment.elance.modelManager.BidManager;
 import com.assignment.elance.modelManager.JobManager;
 import java.io.IOException;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class BidController extends HttpServlet {
-    
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int requestType = Integer.parseInt(request.getParameter("type"));
-        
+
         BidManager bm = new BidManager();
         switch (requestType) {
             case SystemAttributes.BidControllerType.INSERTBID:
@@ -32,14 +33,15 @@ public class BidController extends HttpServlet {
                 break;
             case SystemAttributes.BidControllerType.APPROVE:
                 int bid_id = Integer.parseInt(request.getParameter("bidId"));
-                int[] ids = bm.fromAcceptedToApproved(bid_id);
+                Map<String, Object> info = bm.fromAcceptedToApproved(bid_id);
                 JobManager jm = new JobManager();
-                jm.addBidder(ids[1], ids[0]);
-                jm.changeStatus(ids[0], SystemAttributes.JobStatuses.INPROGRESS);
-                response.sendRedirect("project.jsp?jobId=" + ids[0]);
+                jm.addBidder((Integer) info.get("bidder_id"), (Integer) info.get("job_id"));
+                jm.changeStatus((Integer) info.get("job_id"), SystemAttributes.JobStatuses.INPROGRESS);
+                jm.setStartAndEndDate((Integer) info.get("job_id"), (Long) info.get("time"), (Float) info.get("price"));
+                response.sendRedirect("project.jsp?jobId=" + (Integer) info.get("job_id"));
                 break;
         }
-        
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

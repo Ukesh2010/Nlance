@@ -5,7 +5,9 @@ import com.assignment.elance.models.Bid;
 import com.assignment.elance.models.Bidder;
 import com.assignment.elance.models.HibernateUtil;
 import com.assignment.elance.models.Job;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.Session;
 
 public class BidManager {
@@ -79,24 +81,26 @@ public class BidManager {
     public List getBidByBidder(int bidderId) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List bidList = session.createQuery("from Bid").list();
+        List bidList = session.createQuery("from Bid bid where bid.bidder.bidder_id=" + bidderId).list();
         session.getTransaction().commit();
         return bidList;
 
     }
 
-    public int[] fromAcceptedToApproved(int bid_id) {
+    public Map fromAcceptedToApproved(int bid_id) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
         Bid bid = (Bid) session.get(Bid.class, new Integer(bid_id));
         bid.setStatus(SystemAttributes.BidderStatuses.APPROVED);
-        int[] i = new int[2];
-        i[0] = bid.getJob().getJob_id();
-        i[1] = bid.getBidder().getBidder_id();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("job_id", bid.getJob().getJob_id());
+        map.put("bidder_id", bid.getBidder().getBidder_id());
+        map.put("time", bid.getTime_of_completion());
+        map.put("price", bid.getBidded_price());
         session.update(bid);
         session.getTransaction().commit();
-        return i;
+        return map;
     }
 
 }

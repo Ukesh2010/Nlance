@@ -11,11 +11,11 @@
         <property column="time_period" name="time_period"/>
         <property column="job_posted_date" name="job_posted_date"/>
         <property column="job_status" name="job_status"/>
-        <many-to-one class="com.assignment.elance.models.Employer" name="employer">
+        <many-to-one lazy="false" class="com.assignment.elance.models.Employer" name="employer">
             <column name="employer_id"/>
         </many-to-one>
-        <many-to-one class="com.assignment.elance.models.Bidder" name="bidder">
-            <column name="bidder_id"/>
+        <many-to-one  class="com.assignment.elance.models.Bidder"  name="bidder">
+            <column not-null="false" default="null" name="bidder_id"/>
         </many-to-one>
         <set fetch="select" inverse="true" lazy="false" name="bids" table="bid">
             <key>
@@ -41,12 +41,6 @@
             </key>
             <one-to-many class="com.assignment.elance.models.Milestone" />
         </set>
-        <!--        <set fetch="select" inverse="true" lazy="true" name="job_skills" table="job_skill">
-            <key>
-                <column name="job_id" not-null="true"/>
-            </key>
-            <one-to-many class="com.assignment.elance.models.Job_Skill"/>
-        </set>-->
         
         <set name="skills" table="job_skill" inverse="false" lazy="false" fetch="select" cascade="all"  >
             <key>
@@ -60,5 +54,8 @@
         <many-to-one lazy="false" name="category" class="com.assignment.elance.models.Category">
             <column name="category_id" />
         </many-to-one>
+        <property name="start_date" column="start_date" not-null="false"  />
+        <property name="end_date" column="end_date" not-null="false"  />
+        <property name="bidded_price" column="bidded_price"  />
     </class>
 </hibernate-mapping>

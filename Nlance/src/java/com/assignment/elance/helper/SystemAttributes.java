@@ -34,6 +34,7 @@ public class SystemAttributes {
         public static final String OPEN = "open";
         public static final String INPROGRESS = "inprogress";
         public static final String CLOSED = "closed";
+        public static final String S_CLOSED = "s_closed";
 
     }
 

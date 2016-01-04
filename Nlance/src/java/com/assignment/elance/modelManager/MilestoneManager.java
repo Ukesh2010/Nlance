@@ -40,4 +40,14 @@ public class MilestoneManager {
         session.getTransaction().commit();
         return list;
     }
+
+    public void changeStatus(int milestone_id, int status) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        Milestone milestone = (Milestone) session.load(Milestone.class, new Integer(milestone_id));
+        milestone.setMilestone_status(status);
+        session.update(milestone);
+        session.getTransaction().commit();
+    }
 }

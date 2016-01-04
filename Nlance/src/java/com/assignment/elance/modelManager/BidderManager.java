@@ -33,7 +33,7 @@ public class BidderManager {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List result = session.createQuery("from Bidder").list();
+        List result = session.createQuery("from Bidder bidder where bidder.email='" + username + "' AND bidder.password='" + password + "'").list();
         session.getTransaction().commit();
         if (result.size() > 0) {
             return (Bidder) result.get(0);

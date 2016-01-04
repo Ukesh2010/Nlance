@@ -12,19 +12,21 @@ import com.assignment.elance.models.Job;
  * @author EyeWeb005
  */
 public class NewClass {
-
+    
     public static boolean checkPictureFileType(String fileName) {
         int dotIndex = fileName.indexOf(".");
         String fileActualName = fileName.substring(0, dotIndex);
         String fileType = fileName.substring(dotIndex + 1);
         return fileType.equalsIgnoreCase("JPG");
     }
-
+    
     public static void main(String[] args) {
-        MessageManager mm = new MessageManager();
-        mm.insert(9, "hehe", true);
+        JobManager jm = new JobManager();
+        jm.SearchJobsByTitle("ssf");
+//        MessageManager mm = new MessageManager();
+//        mm.insert(9, "hehe", true);
 //        mm.fetchByJobId(1);
 
     }
-
+    
 }

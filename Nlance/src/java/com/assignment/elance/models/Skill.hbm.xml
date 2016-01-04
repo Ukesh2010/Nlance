@@ -5,7 +5,9 @@
         <id column="skill_id" name="skill_id">
             <generator class="native"/>
         </id>
+        
         <property column="skill_name" name="skill_name" />
+        
         <set name="jobs" table="job_skill" inverse="false" lazy="false" fetch="select" cascade="all">
             <key>
                 <column name="skill_id" not-null="true"/>
@@ -22,6 +24,7 @@
             <many-to-many entity-name="com.assignment.elance.models.Bidder">
                 <column name="bidder_id" not-null="true"/>
             </many-to-many>
-        </set>       
+        </set>
+               
     </class>
 </hibernate-mapping>

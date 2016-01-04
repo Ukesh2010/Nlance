@@ -10,7 +10,7 @@
         <property name="password" column="password"/>
         <set name="jobs" table="job" inverse="true" lazy="true" fetch="select">
             <key>
-                <column name="bidder_id" not-null="true"/>
+                <column name="bidder_id" not-null="false" default="null"/>
             </key>
             <one-to-many class="com.assignment.elance.models.Job"/>
         </set>

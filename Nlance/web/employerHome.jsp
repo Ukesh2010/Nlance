@@ -1,3 +1,4 @@
+<%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="com.assignment.elance.helper.SystemMethods"%>
 <%@page import="java.util.Date"%>
@@ -42,23 +43,22 @@
 
     <body id="page-top" class="index">
 
-        <nav class="navbar navbar-inverse">
+        <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="index.jsp">Nlance</a>
                 </div>
                 <div>
-                    <ul class="nav navbar-nav navbar-left">
-                        <li><a href="createNewProject.jsp"><span class="glyphicon glyphicon-new-window"></span>Create a new Project</a></li>
-
-                    </ul>
                     <ul class="nav navbar-nav navbar-right">
+                        <li><a href="createNewProject.jsp"><span class="">Create a new Project</span></a></li>
                         <li><a href="#"><span class=""></span><%= employer.getUsername()%></a></li>
-                        <li><a href="<%= request.getContextPath()%>/Logout?type=1"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                        <li><a href="<%= request.getContextPath()%>/Logout?type=1"><span ></span> Logout</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
+        
+
         <div class="row">
             <div class="col-sm-offset-1 col-lg-10">
                 <div id="tabs">
@@ -114,6 +114,12 @@
                                     <th>Id</th>
                                     <th>Title</th>
                                     <th>Description</th>
+                                    <th>Posted Date</th>
+                                    <th>Started Date</th>
+                                    <th>End Date</th>
+                                    <th>Posted Price</th>
+                                    <th>Agreed Price</th>
+
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -122,11 +128,18 @@
                                     Iterator activeJobs = jm.activeJobList(employer.getEmployer_id()).iterator();
                                     while (activeJobs.hasNext()) {
                                         Job job = (Job) activeJobs.next();
+                                        int daysRem = SystemMethods.subtractDate(new Date(), job.getEnd_date());
                                 %>
                                 <tr>
                                     <td><%= job.getJob_id()%></td>
                                     <td><%=job.getJob_title()%></td>
                                     <td><%= job.getJob_description()%></td>
+                                    <td><%= job.getJob_posted_date()%></td>
+                                    <td><%= job.getStart_date()%></td>
+                                    <td><%= job.getEnd_date()%><br><%=daysRem < 0 ? "Late" : daysRem + " days remaining"%></td>
+                                    <td><%= job.getJob_cost()%></td>
+                                    <td><%= job.getBidded_price()%></td>
+
                                     <td> 
                                         <a class="btn btn-success btn-block" href="projectOverview.jsp?pId=<%= job.getJob_id()%>" class="list-group-item">View in Detail</a>
                                     </td>
@@ -148,10 +161,21 @@
                                     <th>Id</th>
                                     <th>Title</th>
                                     <th>Description</th>
+                                    <th>Posted Date</th>
+                                    <th>Started Date</th>
+                                    <th>End Date</th>
+                                    <th>Posted Price</th>
+                                    <th>Agreed Price</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <%
+                                    List closedJobs = jm.fetchJobsByEmployerIdAndClosed(employer.getEmployer_id());
+                                    for (int i = 0; i < closedJobs.size(); i++) {
+                                        pastJobs.add((Job) closedJobs.get(i));
+                                    }
+                                %>
                                 <%
                                     Iterator pastJobsIterator = pastJobs.iterator();
                                     while (pastJobsIterator.hasNext()) {
@@ -161,8 +185,18 @@
                                     <td><%= job.getJob_id()%></td>
                                     <td><%=job.getJob_title()%></td>
                                     <td><%= job.getJob_description()%></td>
+                                    <td><%= job.getJob_posted_date()%></td>
+                                    <td><%= job.getStart_date()%></td>
+                                    <td><%= job.getEnd_date()%></td>
+                                    <td><%= job.getJob_cost()%></td>
+                                    <td><%= job.getBidded_price()%></td>
                                     <td> 
-                                        <a class="btn btn-success btn-block" href="projectOverview.jsp?pId=<%= job.getJob_id()%>" class="list-group-item">View in Detail</a>
+                                        <% if (job.getJob_status().equals(SystemAttributes.JobStatuses.OPEN) || job.getJob_status().equals(SystemAttributes.JobStatuses.CLOSED)) {%>
+                                        <a class="btn btn-success btn-block" href="editProject.jsp?jobId=<%=job.getJob_id()%>" class="list-group-item">Repost</a>
+                                        <a class="btn btn-success btn-block" href="projectOverview.jsp?pId=<%= job.getJob_id()%>" class="list-group-item">View</a>
+                                        <%} else if (job.getJob_status().equals(SystemAttributes.JobStatuses.S_CLOSED)) {%>
+                                        <a class="btn btn-success btn-block" href="projectOverview.jsp?pId=<%= job.getJob_id()%>" class="list-group-item">View</a>
+                                        <%}%>
                                     </td>
                                 </tr>
                                 <%
