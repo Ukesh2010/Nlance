@@ -1,3 +1,4 @@
+<%@page import="com.assignment.elance.helper.SystemMethods"%>
 <%@page import="com.assignment.elance.models.Milestone"%>
 <%@page import="com.assignment.elance.modelManager.MilestoneManager"%>
 <%@page import="com.assignment.elance.models.Skill"%>
@@ -15,6 +16,11 @@
 <% int job_id = Integer.parseInt(request.getParameter("jobId"));%>
 <% Job job = new JobManager().getJobById(job_id);%>
 <jsp:useBean id="bidder" class="com.assignment.elance.models.Bidder" scope="session"/>
+<%
+    if (bidder == null || bidder.getBidder_id() <= 0) {
+        response.sendRedirect("bidderSignin.jsp");
+    }
+%>
 <%!
     public boolean checkPictureFileType(String fileName) {
         int dotIndex = fileName.indexOf(".");
@@ -36,9 +42,9 @@
 %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:include page="templates/header.jsp" />
+
 <script>
     $(document).ready(function () {
-        $('#gallery').gallerie();
         $("#mgmt-tabs").tabs();
         var dialog = $('#dialog').dialog({
             autoOpen: false,
@@ -79,9 +85,9 @@
         }, function (data) {
             for (var i = 0; i < data.length; i++) {
                 if (data[i].dir) {
-                    message = message + '<li class="bg-info">' + data[i].message + "</li>";
+                    message = message + '<li style="text-align:right;" class="btn btn-block btn-info ">' + data[i].message + "</li>";
                 } else {
-                    message = message + '<li class="bg-primary">' + data[i].message + "</li>";
+                    message = message + '<li style="text-align:left;" class="btn btn-block btn-success">' + data[i].message + "</li>";
                 }
             }
             $("#message-box").html(message);
@@ -101,7 +107,7 @@
             "type": 0
         },
         function () {
-            message = message + '<li class="bg-info">' + msg + "</li>";
+            message = message + '<li style="text-align:right;" class="btn btn-block btn-info ">' + msg + "</li>";
             $("#message-box").html(message);
         });
     }
@@ -110,7 +116,7 @@
 
 </script>
 <body id="page-top" class="index">
-    <nav class="navbar navbar-inverse">
+    <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="index.jsp">Nlance</a>
@@ -156,40 +162,52 @@
                     </table>
                 </div>
                 <div id="mgmt-tabs-2">
-                    <table class="table table-bordered">
-                        <thead>
-                        <th>File Name</th>
-                        <th>Action</th>
-                        </thead>
+                    <div style="height: 400px; overflow-y: scroll;">
+                        <table class="table table-bordered">
+                            <thead>
+                            <th>File Name</th>
+                            <th>Preview</th>
+                            </thead>
+                            <tbody>
+
+
+                                <%                        FilesManager fm = new FilesManager();
+                                    Iterator filesIterator = fm.fetchByJobId(job_id).iterator();
+
+                                    while (filesIterator.hasNext()) {
+                                        Files file = (Files) filesIterator.next();
+                                %>
+                                <tr class="<%= file.isSent_dir() ? "info" : "success"%>">
+                                    <td><a class="btn btn-block" href="<%=filePath + file.getFile()%>"><%=file.getFile_name()%></a></td>
+                                    <td>
+                                        <%
+                                            if (checkPictureFileType(file.getFile_name())) {
+                                        %>
+                                        <img src="<%=filePath + file.getFile()%>" class="img-responsive img-thumbnail" style="height:200px;" />
+                                        <%
+                                        } else {%>
+                                        <%=  "Not Available"%>
+                                        <%  }
+                                        %>
+                                    </td>
+                                </tr>
+
+                                <%
+                                    }
+                                %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%
+                        if (job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS)) {
+                    %>
+
+                    <table>
                         <tbody>
-                            <%                        FilesManager fm = new FilesManager();
-                                Iterator filesIterator = fm.fetchByJobId(job_id).iterator();
-
-                                while (filesIterator.hasNext()) {
-                                    Files file = (Files) filesIterator.next();
-                            %>
                             <tr>
-                                <td><a class="btn btn-block" href="<%=filePath + file.getFile()%>"><%=file.getFile_name()%></a></td>
-                                <td>
-                                    <%
-                                        if (checkPictureFileType(file.getFile_name())) {
-                                    %>
-                                    <div id="gallery">
-                                        <a href="<%=filePath + file.getFile()%>">Preview</a>
-                                    </div>
-                                    <%
-                                        }
-                                    %>
-                                </td>
-                            </tr>
-
-                            <%
-                                }
-                            %>
-                            <tr>
-                        <form method="post" action="<%= request.getContextPath()%>/FileUploadServlet?jobId=<%=job_id%>" enctype="multipart/form-data">
+                        <form method="post" action="<%= request.getContextPath()%>/FileUploadServlet?jobId=<%=job_id%>&senddir=1&callbackpage=1" enctype="multipart/form-data">
                             <td>
-                                <input id="fileUpload" class="input-sm " type="file"  name="uploadFile" />
+                                <input required id="fileUpload" class="input-sm " type="file"  name="uploadFile" />
                             </td>
                             <td>        
                                 <input type="submit" value="Upload" />
@@ -198,16 +216,22 @@
                         </tr>
                         </tbody>
                     </table>
+                    <% }%>
                 </div>
                 <div id="mgmt-tabs-3">
-                    <div class="h1">Message</div>
-                    <div>
-                        <ul id="message-box" class="list-unstyled">
-                            <li class="bg-primary "></li>
-                        </ul>
+                    <div class="row">
+                        <div class="col-sm-offset-2 col-sm-8">
+
+                            <div style="height: 400px; overflow-y: scroll;">
+                                <ul id="message-box" class="list-unstyled">
+                                    <li class="bg-primary text-left "></li>
+                                </ul>
+                            </div>
+                            <input  <%=(job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS)) ? "" : "disabled"%> class="form-control" onkeydown="if (event.keyCode == 13)
+                                        sendMessage(this)" type="text" url="<%= request.getContextPath()%>/MessageController" job-id="<%=job_id%>"   id="sendMessage" value="" />
+                        </div>
                     </div>
-                    <input onkeydown="if (event.keyCode == 13)
-                                sendMessage(this)" type="text" url="<%= request.getContextPath()%>/MessageController" job-id="<%=job_id%>"   id="sendMessage" value="" />
+
                 </div >
                 <div id="mgmt-tabs-4">
                     <div>
@@ -225,9 +249,9 @@
                                         paidMoney = ((milestone.getMilestone_status() == SystemAttributes.MileStoneStatuses.ACCEPT) ? milestone.getMilestone_amount() : 0) + paidMoney;
                                 %>
                                 <tr>
-                                    <td><%= milestone.getMilestone_amount()%></td>
+                                    <td>Rs <%= milestone.getMilestone_amount()%></td>
                                     <td><%= milestone.getMilestone_description()%></td>
-                                    <td><%= milestone.getMilestone_status()%></td>
+                                    <td><%= SystemMethods.getStatus(milestone.getMilestone_status())%></td>
                                     <td></td>
                                 </tr>
                                 <%
@@ -237,8 +261,8 @@
                         </table>
 
                     </div>
-                    <label class=" btn btn-default">Total Project Price : <%= job.getBidded_price()%></label> <label class="btn btn-default">Paid Money : <%= paidMoney%> </label>
-                    <button id="createMilestone" class="btn btn-social" paidmoney="<%= paidMoney%>">Create New Milestone</button>
+                    <label class=" btn btn-default">Total Project Price : Rs <%= job.getBidded_price()%></label> <label class="btn btn-default">Paid Money : Rs <%= paidMoney%> </label>
+                    <button <%=(job.getJob_status().equals(SystemAttributes.JobStatuses.INPROGRESS)) ? "" : "disabled"%> id="createMilestone" class="btn btn-social" paidmoney="<%= paidMoney%>">Create New Milestone</button>
                 </div>
             </div>
         </div>

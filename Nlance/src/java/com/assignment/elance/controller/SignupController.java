@@ -2,8 +2,12 @@ package com.assignment.elance.controller;
 
 import com.assignment.elance.modelManager.BidderManager;
 import com.assignment.elance.modelManager.EmployerManager;
+import com.assignment.elance.modelManager.SkillManager;
+import com.assignment.elance.models.Skill;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +21,18 @@ public class SignupController extends HttpServlet {
         int type = Integer.parseInt(request.getParameter("type"));
         switch (type) {
             case 0:
+//                ArrayList<Integer> skills = new ArrayList<Integer>();
+//                SkillManager sm = new SkillManager();
+//                Iterator temp = sm.fetch().iterator();
+//                while (temp.hasNext()) {
+//                    Skill skill = (Skill) temp.next();
+//                    if (request.getParameter(skill.getSkill_id() + "") != null && request.getParameter(skill.getSkill_id() + "").equals("on")) {
+//                        skills.add(skill.getSkill_id());
+//                    }
+//
+//                }
                 BidderManager biddermanager = new BidderManager();
+//                biddermanager.register(request.getParameter("username"), request.getParameter("password"), request.getParameter("email"), skills);
                 biddermanager.register(request.getParameter("username"), request.getParameter("password"), request.getParameter("email"));
                 response.sendRedirect("bidderSignin.jsp");
                 break;
@@ -33,6 +48,12 @@ public class SignupController extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(check + "");
                 break;
+            case 3:
+                EmployerManager empMan = new EmployerManager();
+                boolean checked = empMan.preRegisterCheck(request.getParameter("email"));
+                response.setContentType("text/html;charset=UTF-8");
+                PrintWriter outt = response.getWriter();
+                outt.print(checked + "");
             default:
                 log("Signup type not defined");
         }

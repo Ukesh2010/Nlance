@@ -1,3 +1,6 @@
+<%@page import="com.assignment.elance.models.Skill"%>
+<%@page import="java.util.Iterator"%>
+<%@page import="com.assignment.elance.modelManager.SkillManager"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:useBean id="bidder" class="com.assignment.elance.models.Bidder" scope="session"/>
 <jsp:useBean id="employer" class="com.assignment.elance.models.Employer" scope="session"/>
@@ -19,56 +22,77 @@
         <meta name="author" content="">
 
         <title>Freelancer - Start Bootstrap Theme</title>
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script src="js/jquery.noty.packaged.min.js"></script>
 
-        <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/jquery-ui.css" rel="stylesheet">
+        <script>
+            $(function () {
+                change(true);
+            });
+            function change(value) {
+                if (value) {
+                    $('#signinBtn').css("color", "grey");
+                    $('#signupBtn').css("color", "white");
+                    $('#signin').show();
+                    $('#signup').hide();
+                } else {
+                    $('#signinBtn').css("color", "white");
+                    $('#signupBtn').css("color", "grey");
+                    $('#signin').hide();
+                    $('#signup').show();
+                }
+            }
 
-        <!-- Custom CSS -->
-        <link href="css/freelancer.css" rel="stylesheet">
 
-        <!-- Custom Fonts -->
-        <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-
+        </script>
     </head>
 
-    <body id="page-top" class="index">
+    <body id="page-top" class="index" >
 
-        <nav class="navbar navbar-inverse">
+        <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="index.jsp">Nlance</a>
                 </div>
-                <!--                <div>
-                                    <ul class="nav navbar-nav navbar-right">
-                                        <li><a href="bidderSignup.jsp"><span class="glyphicon glyphicon-log-in"></span> Signup</a></li>
-                                    </ul>
-                                </div>-->
+                <div>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a class="btn  btn-link" id="signupBtn" onclick="change(false)"><span class="glyphicon glyphicon-link"></span> Sign Up</a></li>
+                        <li><a class="btn  btn-link" id="signinBtn" onclick="change(true)"><span class="glyphicon glyphicon-log-in"></span> Sign In</a></li>
+                    </ul>
+                </div>
             </div>
         </nav>
 
 
-        <div class="row">
-            <div class="col-sm-4 col-sm-offset-1">
+        <div class="row" id="signin">
+            <div class="col-sm-4 col-sm-offset-4">
                 <form role="form" method="post" action="<%= request.getContextPath()%>/LoginController?type=<%= 0%>">
-                    <div class="form-group">
-                        <label for="email">Email address:</label>
-                        <input type="email" class="form-control" id="email" name="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pwd">Password:</label>
-                        <input type="password" class="form-control" id="pwd" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-default btn-block"> Signin</button>
+                    <div>
+                        <div class="form-group">
+                            <label for="login_email">Email address:</label>
+                            <input type="email" class="form-control" id="login_email" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login_pwd">Password:</label>
+                            <input type="password" class="form-control" id="login_pwd" name="password" required>
+                        </div>
 
+
+                        <button type="submit" onclick="login(event)" class="btn btn-default btn-block"> Signin</button>
+                    </div>
                 </form>        
             </div>
-            <div class="col-sm-4 col-sm-offset-1">
-                <form role="form" method="post" action="<%= request.getContextPath()%>/RegisterController?type=<%= 0%>">
+        </div>
+        <div class="row" id="signup">
+            <div class="col-sm-4 col-sm-offset-4">
+                <form onsubmit="return checked();" role="form" method="post" action="<%= request.getContextPath()%>/RegisterController?type=<%= 0%>">
                     <div class="form-group">
                         <label for="email">Email address:</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <input type="email"  class="form-control" id="email" name="email" required>
                     </div>
                     <div class="form-group">
                         <label for="un">Username:</label>
@@ -78,23 +102,9 @@
                         <label for="pwd">Password:</label>
                         <input type="password" class="form-control" id="pwd" name="password" required>
                     </div>
-                    <script>
 
-                        var register = function () {
-                            var email = $('#email').val();
-                            alert(email);
-                            $.post('<%= request.getContextPath()%>/RegisterController?type=<%= 2%>', {'email': email}, function (data) {
-                                        if (data == true) {
 
-                                        } else {
-                                            alert("Email address already used");
-                                        }
-
-                                    });
-                                };
-                    </script>
-
-                    <button id="registerBtn" onclick="register()" type="submit" class="btn btn-default btn-block"> Register</button>
+                    <button id="registerBtn"  type="submit" class="btn btn-default btn-block"> Register</button>
 
                 </form>        
 
@@ -102,26 +112,67 @@
             </div>
         </div>
 
+        <script>
+            var emailcheck = false;
 
+            function showNotification(message) {
+                noty({text: message,
+                    type: 'alert',
+                    timeout: true,
+                    animation: {
+                        open: {height: 'toggle'},
+                        close: {height: 'toggle'},
+                        easing: 'swing',
+                        speed: 500
+                    }});
+            }
 
+            var login = function (event) {
+                event.preventDefault();
+                var email = $('#login_email').val();
+                var pwd = $('#login_pwd').val();
+                $.post('<%= request.getContextPath()%>/LoginController', {
+                    'username': email,
+                    'password': pwd,
+                    'type': 0
+                }, function (data) {
+                    if (data.success == true) {
+                        location.reload();
+                    } else {
+                        showNotification("Username or password incorrect!");
 
-        <!-- jQuery -->
-        <script src="js/jquery.js"></script>
+                    }
 
-        <!-- Bootstrap Core JavaScript -->
-        <script src="js/bootstrap.min.js"></script>
+                });
+            };
 
-        <!-- Plugin JavaScript -->
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-        <script src="js/classie.js"></script>
-        <script src="js/cbpAnimatedHeader.js"></script>
+            $('#email').on('change', function () {
+                var email = $('#email').val();
+                $.post('<%= request.getContextPath()%>/RegisterController', {
+                    'email': email,
+                    'type': 2
+                }, function (data) {
+                    if (data == "true") {
+                        emailcheck = true;
+                    } else {
+                        emailcheck = false;
+                        showNotification("Email address already used!");
+                    }
 
-        <!-- Contact Form JavaScript -->
-        <script src="js/jqBootstrapValidation.js"></script>
-        <script src="js/contact_me.js"></script>
+                });
+            });
+            var checked = function () {
+                if (emailcheck) {
+                    return true;
+                } else {
+                    showNotification("Email address already used!");
+                    return false;
+                }
 
-        <!-- Custom Theme JavaScript -->
-        <script src="js/freelancer.js"></script>
+            }
+
+        </script>
+
 
     </body>
 

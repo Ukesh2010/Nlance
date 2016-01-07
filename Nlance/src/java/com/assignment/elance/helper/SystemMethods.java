@@ -31,4 +31,8 @@ public class SystemMethods {
     public static int subtractDate(Date initial_date, Date final_date) {
         return convertMiliToDay(final_date.getTime() - initial_date.getTime());
     }
+
+    public static String getStatus(int stat) {
+        return stat == 0 ? "Requested" : (stat == 1 ? "Accepted" : (stat == 2 ? "Rejected" : ""));
+    }
 }

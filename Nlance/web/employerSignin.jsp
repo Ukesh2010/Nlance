@@ -18,31 +18,25 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>Freelancer - Start Bootstrap Theme</title>
-
-        <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Custom CSS -->
-        <link href="css/freelancer.css" rel="stylesheet">
-
-        <!-- Custom Fonts -->
-        <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
-
+        <title>Nlance</title>
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script src="js/jquery.noty.packaged.min.js"></script>
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/jquery-ui.css" rel="stylesheet">
     </head>
 
     <body id="page-top" class="index">
 
-        <nav class="navbar navbar-inverse">
+        <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="index.jsp">Nlance</a>
                 </div>
                 <div>
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="employerSignin.jsp"><span class="glyphicon glyphicon-log-in"></span> Signup</a></li>
+                        <li><a href="employerSignup.jsp"><span class="glyphicon glyphicon-log-in"></span> Signup</a></li>
                     </ul>
                 </div>
             </div>
@@ -51,44 +45,52 @@
 
         <div class="row">
             <div class="col-sm-4 col-sm-offset-4">
-                <form role="form" method="post" action="<%= request.getContextPath()%>/LoginController?type=<%= 1%>">
+                <form role="form" onsubmit="return login()" method="post" action="<%= request.getContextPath()%>/LoginController?type=<%= 1%>">
                     <div class="form-group">
-                        <label for="email">Email address:</label>
-                        <input type="email" class="form-control" id="email" name="email">
+                        <label for="login_email">Email address:</label>
+                        <input type="email" class="form-control" id="login_email" name="email" required>
                     </div>
                     <div class="form-group">
-                        <label for="pwd">Password:</label>
-                        <input type="password" class="form-control" id="pwd" name="password">
+                        <label for="login_pwd">Password:</label>
+                        <input type="password" class="form-control" id="login_pwd" name="password" required>
                     </div>
-                    <button type="submit" class="btn btn-default btn-block"> Signin</button>
+                    <button  type="submit" class="btn btn-default btn-block"> Signin</button>
 
                 </form>        
 
 
             </div>
         </div>
+        <script>
+            function showNotification(message) {
+                noty({text: message,
+                    type: 'alert',
+                    timeout: true,
+                    animation: {
+                        open: {height: 'toggle'},
+                        close: {height: 'toggle'},
+                        easing: 'swing',
+                        speed: 500
+                    }});
+            }
+            var login = function () {
+                var email = $('#login_email').val();
+                var pwd = $('#login_pwd').val();
+                $.post('<%= request.getContextPath()%>/LoginController', {
+                    'email': email,
+                    'password': pwd,
+                    'type': 1
+                }, function (data) {
+                    if (data.success == true) {
+                        location.reload();
+                    } else {
+                        showNotification('Username or Password incorrect');
+                    }
 
-
-
-
-        <!-- jQuery -->
-        <script src="js/jquery.js"></script>
-
-        <!-- Bootstrap Core JavaScript -->
-        <script src="js/bootstrap.min.js"></script>
-
-        <!-- Plugin JavaScript -->
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-        <script src="js/classie.js"></script>
-        <script src="js/cbpAnimatedHeader.js"></script>
-
-        <!-- Contact Form JavaScript -->
-        <script src="js/jqBootstrapValidation.js"></script>
-        <script src="js/contact_me.js"></script>
-
-        <!-- Custom Theme JavaScript -->
-        <script src="js/freelancer.js"></script>
-
+                });
+                return false;
+            };
+        </script>
     </body>
 
 </html>

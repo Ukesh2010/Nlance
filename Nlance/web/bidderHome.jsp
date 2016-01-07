@@ -90,7 +90,8 @@
                 $("#tabs").tabs();
                 $("#dialog").dialog({
                     autoOpen: false,
-                    modal: true
+                    modal: true,
+                    width:400
                 });
 
             });
@@ -106,7 +107,7 @@
                 <div>
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="search.jsp"><span></span> Search</a></li>
-                        <li><a href="bidderSignup.jsp"><span></span> <%= bidder.getEmail()%></a></li>
+                        <li><a href="bidderSignup.jsp"><span></span> <%= bidder.getUsername()%></a></li>
                         <li><a href="<%= request.getContextPath()%>/Logout?type=0"><span></span> Logout</a></li>
                     </ul>
                 </div>
@@ -151,8 +152,8 @@
                             %>
                             <tr>
                                 <td><%= job.getJob_title()%></td>
-                                <td><%= job.getJob_cost()%></td>
-                                <td><%= job.getJob_posted_date()%>(<%=7 - days_count%>days remaining)</td>
+                                <td>Rs <%= job.getJob_cost()%></td>
+                                <td><%= job.getJob_posted_date()%> <br>(<%=7 - days_count%>days remaining)</td>
                                 <td><%= getCategoryName(job.getCategory().getCategory_id())%></td>
                                 <td><%
                                     List skills = new ArrayList();
@@ -169,7 +170,7 @@
                                     <button>Already Bidded</button>
                                     <%} else {
                                     %>
-                                    <a class="btn btn-success" url="<%= request.getContextPath()%>/BidController?type=<%= SystemAttributes.BidControllerType.INSERTBID%>" bidderid="<%= bidder.getBidder_id()%>" jobid="<%= job.getJob_id()%>" onclick="placeBid(this)">Bid</a>
+                                    <a class="btn btn-block btn-info" url="<%= request.getContextPath()%>/BidController?type=<%= SystemAttributes.BidControllerType.INSERTBID%>" bidderid="<%= bidder.getBidder_id()%>" jobid="<%= job.getJob_id()%>" onclick="placeBid(this)">Bid</a>
 
                                     <%
                                         }
@@ -184,131 +185,123 @@
 
                     </div>
                     <div id="tabs-2">
-                        <div class="row">
-                            <div class="col-sm-offset-1 col-sm-10">
-                                <table class="table table-striped">
-                                    <thead class="bg-primary">
-                                    <th>Title</th>
-                                    <th>Price</th>
-                                    <th>Date Remaining</th>
-                                    <th>Category</th>
-                                    <th>Skill</th>
-                                    <th>Bidded Price</th>
-                                    <th>Time of completion</th>
-                                    <th>Action</th>
-                                    </thead>                   
-                                    <tbody>
+                        <table class="table table-striped">
+                            <thead class="bg-primary">
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Date Remaining</th>
+                            <th>Category</th>
+                            <th>Skill</th>
+                            <th>Bidded Price</th>
+                            <th>Time of completion</th>
+                            <th>Action</th>
+                            </thead>                   
+                            <tbody>
+                                <%
+                                    Iterator tempBid = bidlist.iterator();
+                                    while (tempBid.hasNext()) {
+                                        Bid bid = (Bid) tempBid.next();
+
+                                        Job biddedJob = new JobManager().getJobById(bid.getJob().getJob_id());
+                                        int days_count = SystemMethods.subtractDate(biddedJob.getJob_posted_date(), new Date());
+                                %>
+                                <tr>
+                                    <td><%= biddedJob.getJob_title()%></td>
+                                    <td>Rs <%= biddedJob.getJob_cost()%></td>
+                                    <td><%= days_count < 7 ? 7 - days_count : "Expired"%></td>
+                                    <td><%= getCategoryName(biddedJob.getCategory().getCategory_id())%></td>
+
+                                    <td>
                                         <%
-                                            Iterator tempBid = bidlist.iterator();
-                                            while (tempBid.hasNext()) {
-                                                Bid bid = (Bid) tempBid.next();
-
-                                                Job biddedJob = new JobManager().getJobById(bid.getJob().getJob_id());
-                                                int days_count = SystemMethods.subtractDate(biddedJob.getJob_posted_date(), new Date());
+                                            List skills = new ArrayList();
+                                            skills.addAll(biddedJob.getSkills());
+                                            Iterator skils = skills.iterator();
+                                            while (skils.hasNext()) {
                                         %>
-                                        <tr>
-                                            <td><%= biddedJob.getJob_title()%></td>
-                                            <td><%= biddedJob.getJob_cost()%></td>
-                                            <td><%= days_count < 7 ? 7 - days_count : "Expired"%></td>
-                                            <td><%= getCategoryName(biddedJob.getCategory().getCategory_id())%></td>
-
-                                            <td>
-                                                <%
-                                                    List skills = new ArrayList();
-                                                    skills.addAll(biddedJob.getSkills());
-                                                    Iterator skils = skills.iterator();
-                                                    while (skils.hasNext()) {
-                                                %>
-                                                <%= ((Skill) skils.next()).getSkill_name()%>
-                                                <%
-                                                    }
-                                                %>
-                                            </td>
-                                            <td>Rs<%= bid.getBidded_price()%></td>
-                                            <td><%=bid.getTime_of_completion()%></td>
-                                            <td>
-                                                <%
-                                                    if (bid.getStatus().equals(SystemAttributes.BidderStatuses.ACCEPTED)) {
-                                                        if (biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.INPROGRESS) || biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.CLOSED)) {
-                                                %>
-                                                <button class="btn btn-outline btn-block">Closed</button>
-                                                <%
-                                                } else if (days_count > 7) {
-                                                %>
-                                                <button class="btn btn-outline btn-block">Approve Expired</button>
-                                                <%
-                                                } else if (days_count <= 7) {
-                                                %>
-                                                <a href="<%= request.getContextPath()%>/BidController?type=<%= SystemAttributes.BidControllerType.APPROVE%>&bidId=<%= bid.getBid_id()%>" class="btn btn-success">Approve</a>
-                                                <%
-                                                    }
-                                                } else if (bid.getStatus().equals(SystemAttributes.BidderStatuses.BIDED)) {
-                                                %>
-                                                <%= days_count <= 7 ? ((biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.INPROGRESS) || biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.CLOSED)) ? "<button>Bid cancelled Automatically</button>" : "<button>Waiting for acceptance</button>") : "<button>Job Expired</button>"%>
-                                                <%
-                                                } else if (bid.getStatus().equals(SystemAttributes.BidderStatuses.APPROVED)) {
-                                                %>
-                                                <%=biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.INPROGRESS) ? "<button>Inprogress</button>" : (biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.CLOSED) ? "<button>Closed</button>" : "")%>
-                                                <%
-                                                    }
-                                                %>
-                                            </td>
-                                        </tr>
+                                        <%= ((Skill) skils.next()).getSkill_name()%>
                                         <%
                                             }
                                         %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                    </td>
+                                    <td>Rs<%= bid.getBidded_price()%></td>
+                                    <td><%=bid.getTime_of_completion()%></td>
+                                    <td>
+                                        <%
+                                            if (bid.getStatus().equals(SystemAttributes.BidderStatuses.ACCEPTED)) {
+                                                if (biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.INPROGRESS) || biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.CLOSED)) {
+                                        %>
+                                        <button class="btn btn-info btn-block">Closed</button>
+                                        <%
+                                        } else if (days_count > 7) {
+                                        %>
+                                        <button class="btn btn-info btn-block">Approve Expired</button>
+                                        <%
+                                        } else if (days_count <= 7) {
+                                        %>
+                                        <a href="<%= request.getContextPath()%>/BidController?type=<%= SystemAttributes.BidControllerType.APPROVE%>&bidId=<%= bid.getBid_id()%>" class="btn btn-info btn-block">Approve</a>
+                                        <%
+                                            }
+                                        } else if (bid.getStatus().equals(SystemAttributes.BidderStatuses.BIDED)) {
+                                        %>
+                                        <%= days_count <= 7 ? ((biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.INPROGRESS) || biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.CLOSED)) ? "<button>Bid cancelled Automatically</button>" : "<button>Waiting for acceptance</button>") : "<button>Job Expired</button>"%>
+                                        <%
+                                        } else if (bid.getStatus().equals(SystemAttributes.BidderStatuses.APPROVED)) {
+                                        %>
+                                        <%=biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.INPROGRESS) ? "<button class='btn btn-info btn-block'>Inprogress</button>" : (biddedJob.getJob_status().equalsIgnoreCase(SystemAttributes.JobStatuses.CLOSED) ? "<button class='btn btn-info btn-block'>Closed</button>" : "")%>
+                                        <%
+                                            }
+                                        %>
+                                    </td>
+                                </tr>
+                                <%
+                                    }
+                                %>
+                            </tbody>
+                        </table>
                     </div>
                     <div id="tabs-3">
-                        <div class="row">
-                            <div class="col-sm-offset-1 col-sm-10">
-                                <table class="table table-striped">
-                                    <thead class="bg-primary">
-                                    <th>Title</th>
-                                    <th>Price</th>
-                                    <th>Posted Date</th>
-                                    <th>Job Start Date</th>
-                                    <th>Category</th>
-                                    <th>Skill</th>
-                                    <th>Action</th>
-                                    </thead>                   
-                                    <%
-                                        Iterator currentJobs = bm.getBidByStatusAndBidder(SystemAttributes.BidderStatuses.APPROVED, bidder.getBidder_id()).iterator();
-                                        while (currentJobs.hasNext()) {
-                                            Bid bid = (Bid) currentJobs.next();
-                                            Job biddedJob = new JobManager().getJobById(bid.getJob().getJob_id());
-                                            int remDays = SystemMethods.subtractDate(new Date(), biddedJob.getEnd_date());
-                                    %>
-                                    <tbody>
-                                        <tr>
-                                            <td><%= biddedJob.getJob_title()%></td>
-                                            <td><%= biddedJob.getJob_cost()%></td>
-                                            <td><%= biddedJob.getJob_posted_date()%></td>
-                                            <td><%= biddedJob.getStart_date()%><br><%=remDays < 0 ? "Late" : remDays + "Remaining"%> </td>
-                                            <td><%= getCategoryName(biddedJob.getCategory().getCategory_id())%></td>
-                                            <td><%
-                                                List skills = new ArrayList();
-                                                skills.addAll(biddedJob.getSkills());
-                                                Iterator skils = skills.iterator();
-                                                while (skils.hasNext()) {
-                                                %>
-                                                <%= ((Skill) skils.next()).getSkill_name()%>
-                                                <%
-                                                    }
-                                                %></td>
-                                            <td>
-                                                <a href="project.jsp?jobId=<%= biddedJob.getJob_id()%>" class="btn btn-success">Open</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <%                        }
-                                    %>
-                                </table>
-                            </div>
-                        </div>
+                        <table class="table table-striped">
+                            <thead class="bg-primary">
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Posted Date</th>
+                            <th>Job Start Date</th>
+                            <th>Category</th>
+                            <th>Skill</th>
+                            <th>Action</th>
+                            </thead>                   
+                            <%
+                                Iterator currentJobs = bm.getBidByStatusAndBidder(SystemAttributes.BidderStatuses.APPROVED, bidder.getBidder_id()).iterator();
+                                while (currentJobs.hasNext()) {
+                                    Bid bid = (Bid) currentJobs.next();
+                                    Job biddedJob = new JobManager().getJobById(bid.getJob().getJob_id());
+                                    int remDays = SystemMethods.subtractDate(new Date(), biddedJob.getEnd_date());
+                            %>
+                            <tbody>
+                                <tr>
+                                    <td><%= biddedJob.getJob_title()%></td>
+                                    <td>Rs <%= biddedJob.getJob_cost()%></td>
+                                    <td><%= biddedJob.getJob_posted_date()%></td>
+                                    <td><%= biddedJob.getStart_date()%><br>(<%=remDays < 0 ? "Late" : remDays + "Remaining"%>) </td>
+                                    <td><%= getCategoryName(biddedJob.getCategory().getCategory_id())%></td>
+                                    <td><%
+                                        List skills = new ArrayList();
+                                        skills.addAll(biddedJob.getSkills());
+                                        Iterator skils = skills.iterator();
+                                        while (skils.hasNext()) {
+                                        %>
+                                        <%= ((Skill) skils.next()).getSkill_name()%>
+                                        <%
+                                            }
+                                        %></td>
+                                    <td>
+                                        <a href="project.jsp?jobId=<%= biddedJob.getJob_id()%>" class="btn btn-block btn-info">Open</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <%                        }
+                            %>
+                        </table>
                     </div>
 
                 </div>
@@ -331,11 +324,11 @@
             <div role="form">
                 <div class="form-group">
                     <label for="toc">Time of Completion</label>
-                    <input type="datetime" class="form-control" id="toc" placeholder="Time">
+                    <input type="number"  class="form-control" id="toc" min="0" placeholder="Time in hours" required>
                 </div>
                 <div class="form-group">
                     <label for="bp">Bidded Price</label>
-                    <input type="number" class="form-control" id="bp">
+                    <input type="number" class="form-control" min="0" id="bp" required>
                 </div>
                 <button onclick="submitBid()" class="btn btn-default btn-block">Submit</button>
             </div>

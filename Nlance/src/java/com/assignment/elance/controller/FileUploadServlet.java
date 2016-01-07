@@ -93,7 +93,16 @@ public class FileUploadServlet extends HttpServlet {
                         // saves the file on disk
                         item.write(storeFile);
                         FilesManager fm = new FilesManager();
-                        fm.insert(fileName, file, Integer.parseInt(request.getParameter("jobId")), true);
+                        boolean send_dir = false;
+                        switch (Integer.parseInt(request.getParameter("senddir"))) {
+                            case 0:
+                                send_dir = false;
+                                break;
+                            case 1:
+                                send_dir = true;
+                                break;
+                        }
+                        fm.insert(fileName, file, Integer.parseInt(request.getParameter("jobId")), send_dir);
                         request.setAttribute("message",
                                 "Upload has been done successfully!");
                     }
@@ -103,9 +112,18 @@ public class FileUploadServlet extends HttpServlet {
             request.setAttribute("message",
                     "There was an error: " + ex.getMessage());
         }
-        // redirects client to message page
-        getServletContext().getRequestDispatcher("/message.jsp").forward(
-                request, response);
+//        // redirects client to message page
+//        getServletContext().getRequestDispatcher("/message.jsp").forward(
+//                request, response);
+        switch (Integer.parseInt(request.getParameter("callbackpage"))) {
+            case 0:
+                response.sendRedirect("projectOverview.jsp?pId=" + Integer.parseInt(request.getParameter("jobId")));
+                break;
+            case 1:
+                response.sendRedirect("project.jsp?jobId=" + Integer.parseInt(request.getParameter("jobId")));
+                break;
+
+        }
     }
 
     private String randomFileNameGenerator() {

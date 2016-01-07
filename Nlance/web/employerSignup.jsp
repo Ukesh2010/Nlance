@@ -18,24 +18,21 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>Freelancer - Start Bootstrap Theme</title>
+        <title>Nlance</title>
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script src="js/jquery.noty.packaged.min.js"></script>
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/jquery-ui.css" rel="stylesheet">
 
-        <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Custom CSS -->
-        <link href="css/freelancer.css" rel="stylesheet">
-
-        <!-- Custom Fonts -->
-        <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-        <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
 
     </head>
 
     <body id="page-top" class="index">
 
-        <nav class="navbar navbar-inverse">
+        <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="index.jsp">Nlance</a>
@@ -51,18 +48,18 @@
 
         <div class="row">
             <div class="col-sm-4 col-sm-offset-4">
-                <form role="form" method="post" action="<%= request.getContextPath()%>/RegisterController?type=<%= 1%>">
+                <form role="form" onsubmit="return checked()" method="post" action="<%= request.getContextPath()%>/RegisterController?type=<%= 1%>">
                     <div class="form-group">
                         <label for="email">Email address:</label>
-                        <input type="email" class="form-control" id="email" name="email">
+                        <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="form-group">
                         <label for="un">Username:</label>
-                        <input type="text" class="form-control" id="un" name="username">
+                        <input type="text" class="form-control" id="un" name="username" required>
                     </div>
                     <div class="form-group">
                         <label for="pwd">Password:</label>
-                        <input type="password" class="form-control" id="pwd" name="password">
+                        <input type="password" class="form-control" id="pwd" name="password" required>
                     </div>
 
 
@@ -70,31 +67,48 @@
 
                 </form>        
 
-
             </div>
         </div>
+        <script>
+            var emailcheck = false;
+            function showNotification(message) {
+                noty({text: message,
+                    type: 'alert',
+                    timeout: true,
+                    animation: {
+                        open: {height: 'toggle'},
+                        close: {height: 'toggle'},
+                        easing: 'swing',
+                        speed: 500
+                    }});
+            }
 
+            $('#email').on('change', function () {
+                var email = $('#email').val();
+                $.post('<%= request.getContextPath()%>/RegisterController', {
+                    'email': email,
+                    'type': 2
+                }, function (data) {
+                    if (data == "true") {
+                        emailcheck = true;
+                    } else {
+                        emailcheck = false;
+                        showNotification("Email address already used");
+                    }
 
+                });
+            });
+            var checked = function () {
+                if (emailcheck) {
+                    return true;
+                } else {
+                    showNotification("Email address already used");
+                    return false;
+                }
 
+            }
 
-        <!-- jQuery -->
-        <script src="js/jquery.js"></script>
-
-        <!-- Bootstrap Core JavaScript -->
-        <script src="js/bootstrap.min.js"></script>
-
-        <!-- Plugin JavaScript -->
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-        <script src="js/classie.js"></script>
-        <script src="js/cbpAnimatedHeader.js"></script>
-
-        <!-- Contact Form JavaScript -->
-        <script src="js/jqBootstrapValidation.js"></script>
-        <script src="js/contact_me.js"></script>
-
-        <!-- Custom Theme JavaScript -->
-        <script src="js/freelancer.js"></script>
-
+        </script>
     </body>
 
 </html>

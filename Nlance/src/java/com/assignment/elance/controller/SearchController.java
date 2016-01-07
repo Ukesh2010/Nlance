@@ -5,11 +5,13 @@
  */
 package com.assignment.elance.controller;
 
+import com.assignment.elance.helper.SystemMethods;
 import com.assignment.elance.modelManager.JobManager;
 import com.assignment.elance.models.Job;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author EyeWeb005
  */
 public class SearchController extends HttpServlet {
-    
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         JobManager jm = new JobManager();
@@ -32,27 +34,31 @@ public class SearchController extends HttpServlet {
         switch (Integer.parseInt(request.getParameter("type"))) {
             case 0:
                 List jobs = jm.SearchJobsByTitle(request.getParameter("title"));
-                
+
                 Iterator temp = jobs.iterator();
                 while (temp.hasNext()) {
                     Job job = (Job) temp.next();
-                    Map<String, Object> jobMap = new HashMap<String, Object>();
-                    jobMap.put("id", job.getJob_id());
-                    jobMap.put("title", job.getJob_title());
-                    jobMap.put("description", job.getJob_description());
-                    jobMap.put("cost", job.getJob_cost());
-                    jobMap.put("posted_date", job.getJob_posted_date());
-                    jobMap.put("employer_name", job.getEmployer().getUsername());
-                    jobMap.put("category", job.getCategory().getCategory_name());
-                    jobAl.add(jobMap);
+                    int days_count = SystemMethods.subtractDate(job.getJob_posted_date(), new Date());
+                    if (days_count < 7) {
+
+                        Map<String, Object> jobMap = new HashMap<String, Object>();
+                        jobMap.put("id", job.getJob_id());
+                        jobMap.put("title", job.getJob_title());
+                        jobMap.put("description", job.getJob_description());
+                        jobMap.put("cost", job.getJob_cost());
+                        jobMap.put("posted_date", job.getJob_posted_date());
+                        jobMap.put("employer_name", job.getEmployer().getUsername());
+                        jobMap.put("category", job.getCategory().getCategory_name());
+                        jobAl.add(jobMap);
+                    }
                 }
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 response.getWriter().write(new Gson().toJson(jobAl));
-                
+
                 break;
         }
-        
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

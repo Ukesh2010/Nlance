@@ -4,7 +4,10 @@ import com.assignment.elance.modelManager.BidderManager;
 import com.assignment.elance.modelManager.EmployerManager;
 import com.assignment.elance.models.Bidder;
 import com.assignment.elance.models.Employer;
+import com.google.gson.Gson;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,26 +20,45 @@ public class LoginController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession httpSession = request.getSession();
         int type = Integer.parseInt(request.getParameter("type"));
+        Map<String, Object> jobMap = new HashMap<String, Object>();
         switch (type) {
             case 0:
                 BidderManager biddermanager = new BidderManager();
-                Bidder bidder = biddermanager.login(request.getParameter("username"), request.getParameter("password"));
+                Bidder bidder = null;
+                bidder = biddermanager.login(request.getParameter("username"), request.getParameter("password"));
                 if (bidder == null) {
-                    response.sendRedirect("bidderSignin.jsp");
+                    jobMap.put("success", false);
+                    String json = new Gson().toJson(jobMap);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(json);
                 } else {
                     httpSession.setAttribute("bidder", bidder);
-                    response.sendRedirect("bidderHome.jsp");
+                    jobMap.put("success", true);
+                    String json = new Gson().toJson(jobMap);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(json);
                 }
 
                 break;
             case 1:
                 EmployerManager employerManager = new EmployerManager();
-                Employer employer = employerManager.login(request.getParameter("email"), request.getParameter("password"));
+                Employer employer = null;
+                employer = employerManager.login(request.getParameter("email"), request.getParameter("password"));
                 if (employer == null) {
-                    response.sendRedirect("employerSignin.jsp");
+                    jobMap.put("success", false);
+                    String json = new Gson().toJson(jobMap);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(json);
                 } else {
                     httpSession.setAttribute("employer", employer);
-                    response.sendRedirect("employerHome.jsp");
+                    jobMap.put("success", true);
+                    String json = new Gson().toJson(jobMap);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(json);
                 }
                 break;
             default:

@@ -81,7 +81,7 @@ public class JobManager {
     public List fetchJobsByEmployerIdAndClosed(int eId) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List jobs = session.createQuery("from Job j where j.employer.employer_id=" + eId + "AND j.job_status='" + SystemAttributes.JobStatuses.CLOSED + "'").list();
+        List jobs = session.createQuery("from Job j where j.employer.employer_id=" + eId + "AND j.job_status IN  ('" + SystemAttributes.JobStatuses.CLOSED + "','" + SystemAttributes.JobStatuses.S_CLOSED + "')").list();
         session.getTransaction().commit();
         return jobs;
     }
@@ -154,7 +154,7 @@ public class JobManager {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List list = session.createQuery("from Job job where job.employer.employer_id=" + emp_id + " AND job.bidder.bidder_id >" + 0).list();
+        List list = session.createQuery("from Job job where job.employer.employer_id=" + emp_id + " AND job.job_status='" + SystemAttributes.JobStatuses.INPROGRESS + "'").list();
         session.getTransaction().commit();
         return list;
     }
@@ -164,7 +164,7 @@ public class JobManager {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 
-        List jobs = session.createQuery("from Job where job_title like '%" + key + "%'").list();
+        List jobs = session.createQuery("from Job where job_title like '%" + key + "%' AND job_status = '" + SystemAttributes.JobStatuses.OPEN + "'").list();
         session.getTransaction().commit();
         return jobs;
 

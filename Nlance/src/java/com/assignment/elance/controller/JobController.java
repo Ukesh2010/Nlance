@@ -92,6 +92,7 @@ public class JobController extends HttpServlet {
             case 3:
                 JobManager jobMana = new JobManager();
                 jobMana.changeStatus(Integer.parseInt(request.getParameter("jobId")), SystemAttributes.JobStatuses.S_CLOSED);
+                response.sendRedirect("projectOverview.jsp?pId=" + request.getParameter("jobId"));
                 break;
         }
 

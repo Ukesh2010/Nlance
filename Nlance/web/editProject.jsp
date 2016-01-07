@@ -46,7 +46,7 @@
 
     <body id="page-top" class="index">
 
-        <nav class="navbar navbar-inverse">
+        <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="index.jsp">Nlance</a>
@@ -83,20 +83,21 @@
 
                     <label> Tell us more about your project</label>
                     <label for="skills"> What skills are required.</label>
-                    <ul class="list-group">
-                        <%
-                            SkillManager sm = new SkillManager();
-                            Iterator iterator_skill = sm.fetch().iterator();
-                            while (iterator_skill.hasNext()) {
-                                Skill skill = (Skill) iterator_skill.next();
-                        %>
-                        <li class="list-group-item"><input <%=checkIfSelected(selectedSkills, skill) ? "checked='checked'" : ""%> type="checkbox" name="<%= skill.getSkill_id()%>" /><%= skill.getSkill_name()%></li> 
+                    <div style=" height: 100px; overflow-y: scroll;">
+                        <ul class="list-group">
+                            <%
+                                SkillManager sm = new SkillManager();
+                                Iterator iterator_skill = sm.fetch().iterator();
+                                while (iterator_skill.hasNext()) {
+                                    Skill skill = (Skill) iterator_skill.next();
+                            %>
+                            <li class="list-group-item"><input <%=checkIfSelected(selectedSkills, skill) ? "checked='checked'" : ""%> type="checkbox" name="<%= skill.getSkill_id()%>" /><%= skill.getSkill_name()%></li> 
 
-                        <%
-                            }
-                        %>
-                    </ul>
-
+                            <%
+                                }
+                            %>
+                        </ul>
+                    </div>
                     <br>
                     <br>
                     <label for="description"> Describe your project.</label>                  
@@ -104,9 +105,9 @@
                     <br>
 
                     <label for="budget">What budget do you have in mind?</label>                    
-                    <input id="budget" class="form-control" type="number" name="job_cost" value="<%=job.getJob_cost()%>"/>
+                    <input min="0" max="1000000" placeholder="In Rupees" id="budget" class="form-control" type="number" name="job_cost" value="<%=job.getJob_cost()%>"/>
                     <br> 
-                    <button type="submit" class="btn btn-default">Repost Project</button>
+                    <button  type="submit" class="btn btn-default">Repost Project</button>
                 </form>
 
 

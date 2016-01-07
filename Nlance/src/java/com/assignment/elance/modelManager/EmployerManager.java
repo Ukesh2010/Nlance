@@ -16,6 +16,14 @@ import org.hibernate.Session;
  * @author EyeWeb005
  */
 public class EmployerManager {
+        public boolean preRegisterCheck(String email) {
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+
+        List bidderEmailCheck = session.createQuery("from Employer e where e.email='" + email + "'").list();
+        session.getTransaction().commit();
+        return bidderEmailCheck.size() <= 0;
+    }
 
     public void register(String username, String password, String email) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
